@@ -7,13 +7,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.moviedb.App
-import com.example.moviedb.R
-import com.example.moviedb.adapter.MovieAdapter
+import com.example.moviedb.adapter.MoviesAdapter
 import com.example.moviedb.api.MovieApi
+import com.example.moviedb.databinding.FragmentSimilarMovieListBinding
 import com.example.moviedb.model.MovieModel
 import com.example.moviedb.response.MoviesResponse
 import retrofit2.Call
@@ -21,15 +21,13 @@ import retrofit2.Callback
 import retrofit2.Response
 import javax.inject.Inject
 
-class SimilarMovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
+class SimilarMovieListFragment : Fragment() {
 
     @Inject
     lateinit var movieApi: MovieApi
 
-    lateinit var recyclerView: RecyclerView
-
-    lateinit var adapter: MovieAdapter
-
+    private var moviesAdapter = MoviesAdapter()
+    private lateinit var binding: FragmentSimilarMovieListBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,21 +37,23 @@ class SimilarMovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
-        val view = inflater.inflate(R.layout.fragment_similar_movie_list, container, false)
+        binding = FragmentSimilarMovieListBinding.inflate(inflater)
 
-        recyclerView = view.findViewById(R.id.similar_movie_recycler_view)
-        recyclerView.layoutManager = GridLayoutManager(context, 2)
+        binding.rvMovies.apply {
+            layoutManager = GridLayoutManager(context, 2)
+            adapter = moviesAdapter
+        }
 
-        val movieId = SimilarMovieListFragmentArgs.fromBundle(requireArguments()).movieId
+        val safeArgs: SimilarMovieListFragmentArgs by navArgs()
 
-        setUpAdapter(movieId)
+        getSimilarMovies(safeArgs.movieId)
 
-        return view
+        return binding.root
     }
 
-    private fun setUpAdapter(movieId: Int) {
+    private fun getSimilarMovies(movieId: Int) {
         val responseCall = movieApi.getSimilarMovies(movieId, Credentials.API_KEY)
 
         responseCall.enqueue(object : Callback<MoviesResponse> {
@@ -62,19 +62,7 @@ class SimilarMovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
                 response: Response<MoviesResponse>
             ) {
                 if (response.isSuccessful) {
-                    val movieList = response.body()?.popularMovies
-
-                    adapter = context?.let {
-                        movieList?.let { it1 ->
-                            MovieAdapter(
-                                it1,
-                                it,
-                                this@SimilarMovieListFragment
-                            )
-                        }
-                    }!!
-
-                    recyclerView.adapter = adapter
+                    updateData(response.body()?.popularMovies)
                 }
             }
 
@@ -84,12 +72,20 @@ class SimilarMovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
         })
     }
 
-    override fun onMovieClick(position: Int, view: View, movies: List<MovieModel>) {
-        view.findNavController()
-            .navigate(
-                SimilarMovieListFragmentDirections.actionSimilarMovieListFragmentToMovieDetailFragment(
-                    movies[position].id
-                )
-            )
+    private fun updateData(movieList: List<MovieModel>?){
+        context?.let {
+            moviesAdapter.apply {
+                setData(movieList)
+                onMovieItemClickListener = object : MoviesAdapter.OnMovieItemClickListener {
+                    override fun onItemClick(item: MovieModel) {
+                        this@SimilarMovieListFragment.findNavController()
+                            .navigate(
+                                SimilarMovieListFragmentDirections
+                                    .actionSimilarMovieListFragmentToMovieDetailFragment(item.id)
+                            )
+                    }
+                }
+            }
+        }
     }
 }
