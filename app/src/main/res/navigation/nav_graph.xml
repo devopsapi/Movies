@@ -7,17 +7,17 @@
     <fragment
         android:id="@+id/movieListFragment"
         android:name="com.example.moviedb.screens.MovieListFragment"
-        tools:layout="@layout/fragment_movie_list"
-        android:label="MovieListFragment" >
+        android:label="MovieListFragment"
+        tools:layout="@layout/fragment_movie_list">
         <action
             android:id="@+id/action_movieListFragment_to_movieDetailFragment"
             app:destination="@id/movieDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/movieDetailFragment"
-        tools:layout="@layout/fragment_movie_detail"
         android:name="com.example.moviedb.screens.MovieDetailFragment"
-        android:label="@string/app_name" >
+        android:label="@string/app_name"
+        tools:layout="@layout/fragment_movie_detail">
         <argument
             android:name="movieId"
             app:argType="integer" />
