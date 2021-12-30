@@ -8,7 +8,7 @@
         android:id="@+id/movieListFragment"
         android:name="com.example.moviedb.screens.MovieListFragment"
         tools:layout="@layout/fragment_movie_list"
-        android:label="MovieListFragment" >
+        android:label="@string/app_name" >
         <action
             android:id="@+id/action_movieListFragment_to_movieDetailFragment"
             app:destination="@id/movieDetailFragment" />
@@ -29,7 +29,7 @@
         android:id="@+id/similarMovieListFragment"
         android:name="com.example.moviedb.screens.SimilarMovieListFragment"
         android:label="@string/app_name"
-        tools:layout="@layout/fragment_similar_movie_list">
+        tools:layout="@layout/fragment_movie_list">
         <argument
             android:name="movieId"
             app:argType="integer" />

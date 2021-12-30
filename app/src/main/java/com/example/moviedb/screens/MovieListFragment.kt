@@ -6,6 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import androidx.core.widget.NestedScrollView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -31,6 +33,12 @@ class MovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
 
     lateinit var adapter: MovieAdapter
 
+    lateinit var nestedScrollView: NestedScrollView
+
+    lateinit var progressBar: ProgressBar
+
+    var currentPage = 1
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         App.appComponent.inject(this@MovieListFragment)
@@ -43,18 +51,32 @@ class MovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
 
         val view = inflater.inflate(R.layout.fragment_movie_list, container, false)
 
+        nestedScrollView = view.findViewById(R.id.scroll_view)
+
+        progressBar = view.findViewById(R.id.progress_bar)
+
         recyclerView = view.findViewById(R.id.recycler_view)
 
         recyclerView.layoutManager = GridLayoutManager(context, 2)
 
-        setUpAdapter()
+        setUpAdapter(currentPage)
+
+        nestedScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+            if (v != null) {
+                if (scrollY == v.getChildAt(0).measuredHeight - v.measuredHeight) {
+                    progressBar.visibility = View.VISIBLE
+                    currentPage++
+                    setUpAdapter(currentPage)
+                }
+            }
+        })
 
         return view
     }
 
-    private fun setUpAdapter() {
+    private fun setUpAdapter(page: Int) {
 
-        val responseCall = movieApi.getPopularMovies(Credentials.API_KEY)
+        val responseCall = movieApi.getPopularMovies(Credentials.API_KEY, page)
 
         responseCall.enqueue(object : Callback<MoviesResponse> {
             override fun onResponse(
@@ -62,9 +84,20 @@ class MovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
                 response: Response<MoviesResponse>
             ) {
                 if (response.isSuccessful) {
+
+                    progressBar.visibility = View.GONE
+
                     val movieList = response.body()?.popularMovies
 
-                    adapter = context?.let { movieList?.let { it1 -> MovieAdapter(it1, it, this@MovieListFragment) } }!!
+                    adapter = context?.let {
+                        movieList?.let { it1 ->
+                            MovieAdapter(
+                                it1,
+                                it,
+                                this@MovieListFragment
+                            )
+                        }
+                    }!!
 
                     recyclerView.adapter = adapter
                 }

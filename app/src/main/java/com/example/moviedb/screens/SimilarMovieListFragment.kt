@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import androidx.core.widget.NestedScrollView
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,6 +32,12 @@ class SimilarMovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
 
     lateinit var adapter: MovieAdapter
 
+    lateinit var nestedScrollView: NestedScrollView
+
+    lateinit var progressBar: ProgressBar
+
+    var currentPage = 1
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,20 +49,34 @@ class SimilarMovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
         savedInstanceState: Bundle?
     ): View? {
 
-        val view = inflater.inflate(R.layout.fragment_similar_movie_list, container, false)
+        val view = inflater.inflate(R.layout.fragment_movie_list, container, false)
 
-        recyclerView = view.findViewById(R.id.similar_movie_recycler_view)
+        nestedScrollView = view.findViewById(R.id.scroll_view)
+
+        progressBar = view.findViewById(R.id.progress_bar)
+
+        recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.layoutManager = GridLayoutManager(context, 2)
 
         val movieId = SimilarMovieListFragmentArgs.fromBundle(requireArguments()).movieId
 
-        setUpAdapter(movieId)
+        setUpAdapter(movieId, currentPage)
+
+        nestedScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+            if (v != null) {
+                if (scrollY == v.getChildAt(0).measuredHeight - v.measuredHeight) {
+                    progressBar.visibility = View.VISIBLE
+                    currentPage++
+                    setUpAdapter(movieId, currentPage)
+                }
+            }
+        })
 
         return view
     }
 
-    private fun setUpAdapter(movieId: Int) {
-        val responseCall = movieApi.getSimilarMovies(movieId, Credentials.API_KEY)
+    private fun setUpAdapter(movieId: Int, page: Int) {
+        val responseCall = movieApi.getSimilarMovies(movieId, Credentials.API_KEY, page)
 
         responseCall.enqueue(object : Callback<MoviesResponse> {
             override fun onResponse(
