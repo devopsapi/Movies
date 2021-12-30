@@ -109,11 +109,11 @@ class MovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
         })
     }
 
-    override fun onMovieClick(position: Int, view: View, movies: List<MovieModel>) {
-        view.findNavController()
-            .navigate(
+    override fun onMovieClick(movie: MovieModel) {
+        view?.findNavController()
+            ?.navigate(
                 MovieListFragmentDirections.actionMovieListFragmentToMovieDetailFragment(
-                    movies[position].id
+                    movie.id
                 )
             )
     }

@@ -28,7 +28,7 @@ class MovieAdapter(
         }
 
         override fun onClick(v: View?) {
-            v?.let { mOnMovieClickListener.onMovieClick(position, it, movies) }
+            v?.let { mOnMovieClickListener.onMovieClick(movies[position]) }
         }
     }
 
@@ -38,7 +38,6 @@ class MovieAdapter(
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
-
         Glide.with(context)
             .load("https://image.tmdb.org/t/p/w500" + movies[position].poster_path)
             .into(holder.moviePoster)
@@ -49,6 +48,6 @@ class MovieAdapter(
     }
 
     interface OnMovieClickListener {
-        fun onMovieClick(position: Int, view: View, movies: List<MovieModel>)
+       fun onMovieClick(movie: MovieModel)
     }
 }
