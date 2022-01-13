@@ -7,22 +7,21 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.ui.NavigationUI
 import com.bumptech.glide.Glide
-import com.example.moviedb.App
 import com.example.moviedb.R
 import com.example.moviedb.api.MovieApi
 import com.example.moviedb.constants.Credentials
+import com.example.moviedb.databinding.FragmentMovieDetailBinding
 import com.example.moviedb.response.MovieDetailsResponse
+import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import kotlin.properties.Delegates
 
-
+@AndroidEntryPoint
 class MovieDetailFragment : Fragment() {
 
     @Inject
@@ -35,35 +34,36 @@ class MovieDetailFragment : Fragment() {
     lateinit var movieRating: TextView
     lateinit var movieVotes: TextView
 
-    var movieId by Delegates.notNull<Int>()
+    private lateinit var _binding: FragmentMovieDetailBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        App.appComponent.inject(this)
-    }
+    private var movieId by Delegates.notNull<Int>()
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        val view = inflater.inflate(R.layout.fragment_movie_detail, container, false)
+    ): View {
+
+        _binding = FragmentMovieDetailBinding.inflate(inflater, container, false)
+
+        val view = _binding.root
 
         movieId = MovieDetailFragmentArgs.fromBundle(requireArguments()).movieId
 
-        movieTitle = view.findViewById(R.id.movie_title)
+        movieTitle = _binding.movieTitle
 
-        movieOverview = view.findViewById(R.id.movie_overview)
+        movieOverview = _binding.movieOverview
         movieOverview.movementMethod = ScrollingMovementMethod.getInstance()
 
-        moviePoster = view.findViewById(R.id.movie_poster)
+        moviePoster = _binding.moviePoster
 
-        movieReleaseDate = view.findViewById(R.id.movie_release_date)
+        movieReleaseDate = _binding.movieReleaseDate
 
-        movieRating = view.findViewById(R.id.movie_rating)
+        movieRating = _binding.movieRating
 
-        movieVotes = view.findViewById(R.id.movie_votes)
+        movieVotes = _binding.movieVotes
 
-        setUpDetailsView(movieId)
+        getMovieDetailsFromNetwork(movieId)
 
         setHasOptionsMenu(true)
 
@@ -87,7 +87,8 @@ class MovieDetailFragment : Fragment() {
         return false
     }
 
-    private fun setUpDetailsView(movieId: Int) {
+
+    private fun getMovieDetailsFromNetwork(movieId: Int) {
 
         val responseCall = movieApi.getMovieDetails(movieId, Credentials.API_KEY)
 
@@ -96,23 +97,8 @@ class MovieDetailFragment : Fragment() {
                 call: Call<MovieDetailsResponse>,
                 response: Response<MovieDetailsResponse>
             ) {
-                if (response.isSuccessful) {
-
-                    movieTitle.text = response.body()?.title
-
-                    movieOverview.text = response.body()?.overview
-
-                    movieReleaseDate.text = response.body()?.release_date
-
-                    movieRating.text = response.body()?.popularity.toString()
-
-                    movieVotes.text = response.body()?.vote_count.toString()
-
-                    context?.let {
-                        Glide.with(it)
-                            .load("https://image.tmdb.org/t/p/w500" + response.body()?.poster_path)
-                            .into(moviePoster)
-                    }
+                if (response.isSuccessful && response.body() != null) {
+                    updateViews(response)
                 }
             }
 
@@ -120,5 +106,28 @@ class MovieDetailFragment : Fragment() {
                 Log.i("MOVIES_DETAILS_FRAGMENT", "ERROR: " + t.message)
             }
         })
+    }
+
+
+    private fun updateViews(response: Response<MovieDetailsResponse>) {
+        with(response.body()!!) {
+
+            movieTitle.text = title
+
+            movieOverview.text = overview
+
+            movieReleaseDate.text = release_date
+
+            movieRating.text = popularity.toString()
+
+            movieVotes.text = vote_count.toString()
+
+            context?.let {
+                Glide.with(it)
+                    .load("https://image.tmdb.org/t/p/w500$poster_path")
+                    .into(moviePoster)
+
+            }
+        }
     }
 }

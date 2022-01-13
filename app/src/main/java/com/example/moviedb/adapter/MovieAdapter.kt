@@ -12,15 +12,17 @@ import com.example.moviedb.model.MovieModel
 
 class MovieAdapter(
     private val movies: List<MovieModel>,
-    private val context: Context,
     private val mOnMovieClickListener: OnMovieClickListener
 ) : RecyclerView.Adapter<MovieAdapter.MyViewHolder>() {
+
+    private lateinit var context: Context
 
     class MyViewHolder(
         private val itemView: View,
         private val movies: List<MovieModel>,
         private val mOnMovieClickListener: OnMovieClickListener
     ) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
+
         val moviePoster: ImageView = itemView.findViewById(R.id.movie_poster)
 
         init {
@@ -34,6 +36,7 @@ class MovieAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.movie_item, parent, false)
+        context = parent.context
         return MyViewHolder(view, movies, mOnMovieClickListener)
     }
 
