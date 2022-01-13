@@ -1,7 +1,6 @@
 package com.example.moviedb.screens
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -18,11 +17,10 @@ import com.example.moviedb.api.MovieApi
 import com.example.moviedb.constants.Credentials
 import com.example.moviedb.databinding.FragmentMovieListBinding
 import com.example.moviedb.model.MovieModel
-import com.example.moviedb.response.MoviesResponse
 import dagger.hilt.android.AndroidEntryPoint
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -31,22 +29,26 @@ class MovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
     @Inject
     lateinit var movieApi: MovieApi
 
-    lateinit var recyclerView: RecyclerView
+    private lateinit var recyclerView: RecyclerView
 
-    lateinit var adapter: MovieAdapter
+    private lateinit var adapter: MovieAdapter
 
-    lateinit var nestedScrollView: NestedScrollView
+    private lateinit var nestedScrollView: NestedScrollView
 
-    lateinit var progressBar: ProgressBar
+    private lateinit var progressBar: ProgressBar
 
     private lateinit var _binding: FragmentMovieListBinding
 
     private lateinit var pageViewModel: PageViewModel
 
+    private lateinit var compositeDisposable: CompositeDisposable
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+        compositeDisposable = CompositeDisposable()
 
         pageViewModel = ViewModelProvider(this).get(PageViewModel::class.java)
 
@@ -79,39 +81,21 @@ class MovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
     }
 
     private fun getMoviesFromNetwork(page: Int) {
-
-        val responseCall = movieApi.getPopularMovies(Credentials.API_KEY, page)
-
-        responseCall.enqueue(object : Callback<MoviesResponse> {
-            override fun onResponse(
-                call: Call<MoviesResponse>,
-                response: Response<MoviesResponse>
-            ) {
-                if (response.isSuccessful) {
-
-                    updateViews(response)
-                }
-            }
-
-            override fun onFailure(call: Call<MoviesResponse>, t: Throwable) {
-                Log.i("MOVIES_LIST_FRAGMENT", "ERROR: " + t.message)
-            }
-        })
+        compositeDisposable.add(movieApi.getPopularMovies(Credentials.API_KEY, page)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { response -> updateViews(response.movies) })
     }
 
-    private fun updateViews(response: Response<MoviesResponse>) {
+    private fun updateViews(movieList: List<MovieModel>) {
 
         progressBar.visibility = View.GONE
 
-        val movieList = response.body()?.popularMovies
-
         adapter = context?.let {
-            movieList?.let { it1 ->
-                MovieAdapter(
-                    it1,
-                    this@MovieListFragment
-                )
-            }
+            MovieAdapter(
+                movieList,
+                this@MovieListFragment
+            )
         }!!
 
         recyclerView.adapter = adapter

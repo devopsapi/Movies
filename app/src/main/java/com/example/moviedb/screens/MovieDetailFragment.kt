@@ -2,7 +2,6 @@ package com.example.moviedb.screens
 
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
-import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.ImageView
@@ -15,11 +14,10 @@ import com.example.moviedb.constants.Credentials
 import com.example.moviedb.databinding.FragmentMovieDetailBinding
 import com.example.moviedb.response.MovieDetailsResponse
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import kotlin.properties.Delegates
 
 @AndroidEntryPoint
 class MovieDetailFragment : Fragment() {
@@ -27,22 +25,26 @@ class MovieDetailFragment : Fragment() {
     @Inject
     lateinit var movieApi: MovieApi
 
-    lateinit var movieTitle: TextView
-    lateinit var movieOverview: TextView
-    lateinit var moviePoster: ImageView
-    lateinit var movieReleaseDate: TextView
-    lateinit var movieRating: TextView
-    lateinit var movieVotes: TextView
+    private lateinit var movieTitle: TextView
+    private lateinit var movieOverview: TextView
+    private lateinit var moviePoster: ImageView
+    private lateinit var movieReleaseDate: TextView
+    private lateinit var movieRating: TextView
+    private lateinit var movieVotes: TextView
 
     private lateinit var _binding: FragmentMovieDetailBinding
 
-    private var movieId by Delegates.notNull<Int>()
+    private var movieId = 0
+
+    private lateinit var compositeDisposable: CompositeDisposable
 
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
+        compositeDisposable = CompositeDisposable()
 
         _binding = FragmentMovieDetailBinding.inflate(inflater, container, false)
 
@@ -89,28 +91,15 @@ class MovieDetailFragment : Fragment() {
 
 
     private fun getMovieDetailsFromNetwork(movieId: Int) {
-
-        val responseCall = movieApi.getMovieDetails(movieId, Credentials.API_KEY)
-
-        responseCall.enqueue(object : Callback<MovieDetailsResponse> {
-            override fun onResponse(
-                call: Call<MovieDetailsResponse>,
-                response: Response<MovieDetailsResponse>
-            ) {
-                if (response.isSuccessful && response.body() != null) {
-                    updateViews(response)
-                }
-            }
-
-            override fun onFailure(call: Call<MovieDetailsResponse>, t: Throwable) {
-                Log.i("MOVIES_DETAILS_FRAGMENT", "ERROR: " + t.message)
-            }
-        })
+        compositeDisposable.add(movieApi.getMovieDetails(movieId, Credentials.API_KEY)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { movieDetails -> updateViews(movieDetails) })
     }
 
 
-    private fun updateViews(response: Response<MovieDetailsResponse>) {
-        with(response.body()!!) {
+    private fun updateViews(movieDetails: MovieDetailsResponse) {
+        with(movieDetails) {
 
             movieTitle.text = title
 
