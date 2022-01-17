@@ -8,11 +8,10 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.moviedb.PageViewModel
-import com.example.moviedb.adapter.MovieAdapter
+import com.example.moviedb.viewmodels.PageViewModel
+import com.example.moviedb.adapter.MoviesAdapter
 import com.example.moviedb.api.MovieApi
 import com.example.moviedb.constants.Credentials
 import com.example.moviedb.databinding.FragmentMovieListBinding
@@ -23,21 +22,20 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
+
 @AndroidEntryPoint
-class MovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
+class MovieListFragment : Fragment() {
 
     @Inject
     lateinit var movieApi: MovieApi
 
-    private lateinit var recyclerView: RecyclerView
-
-    private lateinit var adapter: MovieAdapter
+    private var moviesAdapter = MoviesAdapter()
 
     private lateinit var nestedScrollView: NestedScrollView
 
     private lateinit var progressBar: ProgressBar
 
-    private lateinit var _binding: FragmentMovieListBinding
+    private lateinit var binding: FragmentMovieListBinding
 
     private lateinit var pageViewModel: PageViewModel
 
@@ -48,36 +46,26 @@ class MovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
         savedInstanceState: Bundle?
     ): View {
 
+        binding = FragmentMovieListBinding.inflate(inflater, container, false)
+
+        nestedScrollView = binding.scrollView
+
+        progressBar = binding.progressBar
+
+        binding.rvMovies.apply {
+            layoutManager = GridLayoutManager(context, 2)
+            adapter = moviesAdapter
+        }
+
         compositeDisposable = CompositeDisposable()
 
         pageViewModel = ViewModelProvider(this).get(PageViewModel::class.java)
 
-        _binding = FragmentMovieListBinding.inflate(inflater, container, false)
-
-        val view = _binding.root
-
-        nestedScrollView = _binding.scrollView
-
-        progressBar = _binding.progressBar
-
-        recyclerView = _binding.recyclerView
-
-        recyclerView.layoutManager = GridLayoutManager(context, 2)
+        setUpScroll()
 
         getMoviesFromNetwork(pageViewModel.currentPage)
 
-        nestedScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-            if (v != null) {
-                if (scrollY == v.getChildAt(0).measuredHeight - v.measuredHeight) {
-                    progressBar.visibility = View.VISIBLE
-                    pageViewModel.updatePage()
-
-                    getMoviesFromNetwork(pageViewModel.currentPage)
-                }
-            }
-        })
-
-        return view
+        return binding.root
     }
 
     private fun getMoviesFromNetwork(page: Int) {
@@ -91,22 +79,36 @@ class MovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
 
         progressBar.visibility = View.GONE
 
-        adapter = context?.let {
-            MovieAdapter(
-                movieList,
-                this@MovieListFragment
-            )
-        }!!
-
-        recyclerView.adapter = adapter
+        moviesAdapter.apply {
+            setData(movieList)
+            onMovieItemClickListener = object : MoviesAdapter.OnMovieItemClickListener {
+                override fun onItemClick(item: MovieModel) {
+                    this@MovieListFragment.findNavController()
+                        .navigate(
+                            MovieListFragmentDirections
+                                .actionMovieListFragmentToMovieDetailFragment(item.id)
+                        )
+                }
+            }
+        }
     }
 
-    override fun onMovieClick(movie: MovieModel) {
-        view?.findNavController()
-            ?.navigate(
-                MovieListFragmentDirections.actionMovieListFragmentToMovieDetailFragment(
-                    movie.id
-                )
-            )
+    private fun setUpScroll() {
+        nestedScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
+            if (v != null) {
+                if (scrollY == v.getChildAt(0).measuredHeight - v.measuredHeight) {
+                    progressBar.visibility = View.VISIBLE
+                    pageViewModel.updatePage()
+
+                    getMoviesFromNetwork(pageViewModel.currentPage)
+                }
+            }
+        })
+    }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
     }
 }

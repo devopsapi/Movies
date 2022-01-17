@@ -9,11 +9,11 @@ import android.view.ViewGroup
 import android.widget.ProgressBar
 import androidx.core.widget.NestedScrollView
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.example.moviedb.PageViewModel
-import com.example.moviedb.adapter.MovieAdapter
+import com.example.moviedb.viewmodels.PageViewModel
+import com.example.moviedb.adapter.MoviesAdapter
 import com.example.moviedb.api.MovieApi
 import com.example.moviedb.databinding.FragmentMovieListBinding
 import com.example.moviedb.model.MovieModel
@@ -23,93 +23,98 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import javax.inject.Inject
 
+
 @AndroidEntryPoint
-class SimilarMovieListFragment : Fragment(), MovieAdapter.OnMovieClickListener {
+class SimilarMovieListFragment : Fragment(){
 
     @Inject
     lateinit var movieApi: MovieApi
 
-    private lateinit var recyclerView: RecyclerView
-
-    private lateinit var adapter: MovieAdapter
+    private var moviesAdapter = MoviesAdapter()
 
     private lateinit var nestedScrollView: NestedScrollView
 
     private lateinit var progressBar: ProgressBar
 
-    private lateinit var _binding: FragmentMovieListBinding
+    private lateinit var binding: FragmentMovieListBinding
 
     private lateinit var pageViewModel: PageViewModel
 
     private lateinit var compositeDisposable: CompositeDisposable
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
 
+        binding = FragmentMovieListBinding.inflate(inflater, container, false)
+
+        nestedScrollView = binding.scrollView
+
+        progressBar = binding.progressBar
+
+        binding.rvMovies.apply {
+            layoutManager = GridLayoutManager(context, 2)
+            adapter = moviesAdapter
+        }
+
         compositeDisposable = CompositeDisposable()
 
         pageViewModel = ViewModelProvider(this).get(PageViewModel::class.java)
 
-        _binding = FragmentMovieListBinding.inflate(inflater, container, false)
+        val safeArgs: SimilarMovieListFragmentArgs by navArgs()
 
-        val view = _binding.root
+        setUpScroll(safeArgs.movieId)
 
-        nestedScrollView = _binding.scrollView
+        getSimilarMoviesFromNetwork(safeArgs.movieId, pageViewModel.currentPage)
 
-        progressBar = _binding.progressBar
+        return binding.root
+    }
 
-        recyclerView = _binding.recyclerView
+    private fun getSimilarMoviesFromNetwork(movieId: Int, page: Int) {
+        compositeDisposable.add(
+            movieApi.getSimilarMovies(movieId, Credentials.API_KEY, page)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { response -> updateData(response.movies) })
+    }
 
-        recyclerView.layoutManager = GridLayoutManager(context, 2)
+    private fun updateData(movieList: List<MovieModel>) {
 
-        val movieId = SimilarMovieListFragmentArgs.fromBundle(requireArguments()).movieId
+        progressBar.visibility = View.GONE
 
-        getMoviesFromNetwork(movieId, pageViewModel.currentPage)
+        moviesAdapter.apply {
+            setData(movieList)
+            onMovieItemClickListener = object : MoviesAdapter.OnMovieItemClickListener {
+                override fun onItemClick(item: MovieModel) {
+                    this@SimilarMovieListFragment.findNavController()
+                        .navigate(
+                            SimilarMovieListFragmentDirections
+                                .actionSimilarMovieListFragmentToMovieDetailFragment(item.id)
+                        )
+                }
+            }
+        }
+    }
 
+
+    private fun setUpScroll(movieId: Int) {
         nestedScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
             if (v != null) {
                 if (scrollY == v.getChildAt(0).measuredHeight - v.measuredHeight) {
                     progressBar.visibility = View.VISIBLE
                     pageViewModel.updatePage()
-                    getMoviesFromNetwork(movieId, pageViewModel.currentPage)
+                    getSimilarMoviesFromNetwork(movieId, pageViewModel.currentPage)
                 }
             }
         })
-
-        return view
     }
 
-    private fun getMoviesFromNetwork(movieId: Int, page: Int) {
-        compositeDisposable.add(
-            movieApi.getSimilarMovies(movieId, Credentials.API_KEY, page)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { response -> updateViews(response.movies) })
 
-    }
-
-    private fun updateViews(movieList: List<MovieModel>) {
-
-        progressBar.visibility = View.GONE
-
-        adapter = context?.let {
-            MovieAdapter(
-                movieList,
-                this@SimilarMovieListFragment
-            )
-        }!!
-
-        recyclerView.adapter = adapter
-    }
-
-    override fun onMovieClick(movie: MovieModel) {
-        view?.findNavController()
-            ?.navigate(
-                SimilarMovieListFragmentDirections.actionSimilarMovieListFragmentToMovieDetailFragment(
-                    movie.id
-                )
-            )
+    override fun onDestroy() {
+        super.onDestroy()
+        compositeDisposable.dispose()
     }
 }
+

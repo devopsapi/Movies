@@ -1,4 +1,4 @@
-package com.example.moviedb
+package com.example.moviedb.viewmodels
 
 import androidx.lifecycle.ViewModel
 
@@ -9,5 +9,9 @@ class PageViewModel : ViewModel() {
 
     fun updatePage() {
         currentPage++
+    }
+
+    fun decreasePage(){
+        currentPage--
     }
 }
