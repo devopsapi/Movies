@@ -1,4 +1,4 @@
-package com.example.moviedb.adapter
+package com.example.moviedb.ui.adapter
 
 import android.annotation.SuppressLint
 import android.view.LayoutInflater
@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.moviedb.databinding.MovieItemBinding
-import com.example.moviedb.model.MovieModel
+import com.example.moviedb.data.model.MovieModel
 import java.util.*
 
 class MoviesAdapter : RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>() {

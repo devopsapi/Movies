@@ -1,4 +1,4 @@
-package com.example.moviedb.constants
+package com.example.moviedb.utils
 
 object Credentials {
     const val BASE_URL = "https://api.themoviedb.org/3/"

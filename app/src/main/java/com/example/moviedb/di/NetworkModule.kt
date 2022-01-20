@@ -1,7 +1,7 @@
 package com.example.moviedb.di
 
-import com.example.moviedb.api.MovieApi
-import com.example.moviedb.constants.Credentials
+import com.example.moviedb.data.api.MovieApi
+import com.example.moviedb.utils.Credentials
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import dagger.Module

@@ -1,7 +1,7 @@
-package com.example.moviedb.api
+package com.example.moviedb.data.api
 
-import com.example.moviedb.response.MovieDetailsResponse
-import com.example.moviedb.response.MoviesResponse
+import com.example.moviedb.data.api.responses.MovieDetailsResponse
+import com.example.moviedb.data.api.responses.MoviesResponse
 import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 import retrofit2.http.Path

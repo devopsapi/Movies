@@ -1,4 +1,4 @@
-package com.example.moviedb.adapter
+package com.example.moviedb.ui.adapter
 
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView

@@ -1,4 +1,4 @@
-package com.example.moviedb.response
+package com.example.moviedb.data.api.responses
 
 class MovieDetailsResponse(
     val title: String,

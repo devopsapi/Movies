@@ -1,6 +1,6 @@
-package com.example.moviedb.response
+package com.example.moviedb.data.api.responses
 
-import com.example.moviedb.model.MovieModel
+import com.example.moviedb.data.model.MovieModel
 import com.google.gson.annotations.SerializedName
 
 data class MoviesResponse(
