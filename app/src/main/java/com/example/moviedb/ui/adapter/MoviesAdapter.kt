@@ -35,15 +35,15 @@ class MoviesAdapter : RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>() {
 
     @SuppressLint("NotifyDataSetChanged")
     fun setData(items: List<MovieModel>?) {
-
-        movies.clear()
-
+        val oldSize = items?.size
         items?.let {
             movies.addAll(it)
         }
-
-        notifyDataSetChanged()
+        if (oldSize != null) {
+            notifyItemRangeChanged(oldSize,items.size)
+        }
     }
+
 
     inner class MovieViewHolder(private val binding: MovieItemBinding) :
         BaseViewHolder<MovieModel>(binding.root) {

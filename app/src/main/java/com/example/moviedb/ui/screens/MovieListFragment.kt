@@ -1,15 +1,16 @@
 package com.example.moviedb.ui.screens
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
-import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.moviedb.ui.adapter.MoviesAdapter
 import com.example.moviedb.databinding.FragmentMovieListBinding
 import com.example.moviedb.data.model.MovieModel
@@ -19,12 +20,16 @@ import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MovieListFragment : Fragment() {
-
     private var moviesAdapter = MoviesAdapter()
-    private lateinit var nestedScrollView: NestedScrollView
     private lateinit var progressBar: ProgressBar
     private lateinit var binding: FragmentMovieListBinding
     private val movieListViewModel: MovieListViewModel by viewModels()
+    private var loading = false
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        movieListViewModel.getPopularMovies()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,14 +42,11 @@ class MovieListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        nestedScrollView = binding.scrollView
         progressBar = binding.progressBar
 
+        setUpAdapter()
         setUpRecyclerView()
         observeData()
-        setUpScroll()
-
-        movieListViewModel.getPopularMovies()
     }
 
     private fun observeData() {
@@ -58,8 +60,35 @@ class MovieListFragment : Fragment() {
             layoutManager = GridLayoutManager(context, 2)
             adapter = moviesAdapter
 
-        }
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
 
+                    val totalItemCount = (layoutManager as GridLayoutManager).itemCount
+                    val lastVisibleItemPosition =
+                        (layoutManager as GridLayoutManager).findLastVisibleItemPosition()
+
+                    Log.i("POPULAR_MOVIES_TAG", "--------------------------")
+                    Log.i("POPULAR_MOVIES_TAG", "TOTAL_ITEM_COUNT: $totalItemCount")
+                    Log.i("POPULAR_MOVIES_TAG", "LAST_VISIBLE_ITEM: $lastVisibleItemPosition")
+
+                    if (!loading) {
+                        if ((lastVisibleItemPosition + 1) >= totalItemCount) {
+                            loading = true
+
+                            if (movieListViewModel.canLoadMore()) {
+                                movieListViewModel.updatePage()
+                                movieListViewModel.getPopularMovies()
+                            }
+                        }
+                    }
+                }
+            })
+        }
+    }
+
+    private fun setUpAdapter() {
+        moviesAdapter.stateRestorationPolicy = RecyclerView.Adapter.StateRestorationPolicy.ALLOW
         moviesAdapter.onMovieItemClickListener = object : MoviesAdapter.OnMovieItemClickListener {
             override fun onItemClick(item: MovieModel) {
                 this@MovieListFragment.findNavController()
@@ -72,19 +101,8 @@ class MovieListFragment : Fragment() {
     }
 
     private fun updateViews(movieList: List<MovieModel>) {
+        loading = false
         progressBar.visibility = View.GONE
         moviesAdapter.setData(movieList)
-    }
-
-    private fun setUpScroll() {
-        nestedScrollView.setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-            if (v != null) {
-                if (scrollY == v.getChildAt(0).measuredHeight - v.measuredHeight) {
-                    progressBar.visibility = View.VISIBLE
-                    movieListViewModel.updatePage()
-                    movieListViewModel.getPopularMovies()
-                }
-            }
-        })
     }
 }

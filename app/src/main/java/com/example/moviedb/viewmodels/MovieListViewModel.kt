@@ -1,5 +1,6 @@
 package com.example.moviedb.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -26,7 +27,6 @@ class MovieListViewModel @Inject constructor() : ViewModel() {
     private var totalPages: Int = 1
     private val compositeDisposable = CompositeDisposable()
 
-
     fun getPopularMovies() {
         compositeDisposable.add(
             repo.getPopularMovies(currentPage)
@@ -35,6 +35,8 @@ class MovieListViewModel @Inject constructor() : ViewModel() {
                 .subscribe { response ->
                     _movieList.value = response.movies
                     totalPages = response.total_pages
+
+                    Log.i("TAG","NETWORK REQUEST")
                 }
         )
     }
@@ -43,6 +45,9 @@ class MovieListViewModel @Inject constructor() : ViewModel() {
         currentPage++
     }
 
+    fun canLoadMore(): Boolean {
+        return currentPage < totalPages
+    }
 
     override fun onCleared() {
         super.onCleared()

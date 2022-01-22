@@ -47,6 +47,10 @@ class SimilarMovieViewModel @Inject constructor() : ViewModel() {
         currentPage++
     }
 
+    fun canLoadMore(): Boolean {
+        return currentPage < totalPages
+    }
+
     override fun onCleared() {
         super.onCleared()
         if (!compositeDisposable.isDisposed) {
