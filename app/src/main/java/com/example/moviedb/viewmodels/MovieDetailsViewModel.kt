@@ -17,7 +17,6 @@ class MovieDetailsViewModel @Inject constructor() : ViewModel() {
 
     @Inject
     lateinit var repo: MoviesRepository
-
     private val _movieDetails = MutableLiveData<MovieDetailsResponse>()
     val movieDetails: LiveData<MovieDetailsResponse>
         get() = _movieDetails

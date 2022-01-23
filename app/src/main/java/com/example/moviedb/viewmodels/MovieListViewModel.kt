@@ -18,7 +18,6 @@ class MovieListViewModel @Inject constructor() : ViewModel() {
 
     @Inject
     lateinit var repo: MoviesRepository
-
     private val _movieList = MutableLiveData<List<MovieModel>>()
     val movieList: LiveData<List<MovieModel>>
         get() = _movieList
@@ -36,7 +35,7 @@ class MovieListViewModel @Inject constructor() : ViewModel() {
                     _movieList.value = response.movies
                     totalPages = response.total_pages
 
-                    Log.i("TAG","NETWORK REQUEST")
+                    Log.i("TAG", "NETWORK REQUEST")
                 }
         )
     }
@@ -51,7 +50,6 @@ class MovieListViewModel @Inject constructor() : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
-
         if (!compositeDisposable.isDisposed) {
             compositeDisposable.dispose()
         }

@@ -34,13 +34,14 @@ class MoviesAdapter : RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>() {
     }
 
     @SuppressLint("NotifyDataSetChanged")
-    fun setData(items: List<MovieModel>?) {
+    fun setData(items: List<MovieModel>?, clear: Boolean) {
+        if (clear) movies.clear()
         val oldSize = items?.size
         items?.let {
             movies.addAll(it)
         }
         if (oldSize != null) {
-            notifyItemRangeChanged(oldSize,items.size)
+            notifyItemRangeChanged(oldSize, items.size)
         }
     }
 

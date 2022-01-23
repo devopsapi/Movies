@@ -20,7 +20,6 @@ class MovieDetailFragment : Fragment() {
     private val movieDetailsViewModel: MovieDetailsViewModel by viewModels()
     private var movieId = 0
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -29,7 +28,6 @@ class MovieDetailFragment : Fragment() {
         setHasOptionsMenu(true)
         return binding.root
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -45,12 +43,10 @@ class MovieDetailFragment : Fragment() {
         }
     }
 
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.options_menu, menu)
     }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
@@ -62,7 +58,6 @@ class MovieDetailFragment : Fragment() {
         }
         return false
     }
-
 
     private fun updateViews(movieDetails: MovieDetailsResponse) {
         with(movieDetails) {

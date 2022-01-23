@@ -17,7 +17,6 @@ class SimilarMovieViewModel @Inject constructor() : ViewModel() {
 
     @Inject
     lateinit var repo: MoviesRepository
-
     private val _movieList = MutableLiveData<List<MovieModel>>()
     val movieList: LiveData<List<MovieModel>>
         get() = _movieList

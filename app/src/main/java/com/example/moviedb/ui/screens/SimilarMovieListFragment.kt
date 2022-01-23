@@ -1,5 +1,6 @@
 package com.example.moviedb.ui.screens
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -67,7 +68,11 @@ class SimilarMovieListFragment : Fragment() {
 
     private fun setUpRecyclerView() {
         binding.rvMovies.apply {
-            layoutManager = GridLayoutManager(context, 2)
+            layoutManager = if (requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                GridLayoutManager(context, 2)
+            } else {
+                GridLayoutManager(context, 4)
+            }
             adapter = moviesAdapter
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -106,7 +111,7 @@ class SimilarMovieListFragment : Fragment() {
     private fun updateData(movieList: List<MovieModel>) {
         loading = false
         progressBar.visibility = View.GONE
-        moviesAdapter.setData(movieList)
+        moviesAdapter.setData(movieList, false)
     }
 }
 
