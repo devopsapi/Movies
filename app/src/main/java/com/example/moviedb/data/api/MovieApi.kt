@@ -10,20 +10,17 @@ import retrofit2.http.Query
 interface MovieApi {
     @GET("movie/popular")
     fun getPopularMovies(
-        @Query("api_key") apiKet: String,
         @Query("page") page: Int = 1
     ): Single<MoviesResponse>
 
     @GET("movie/{movie_id}")
     fun getMovieDetails(
         @Path("movie_id") movieId: Int,
-        @Query("api_key") apiKet: String
     ): Single<MovieDetailsResponse>
 
     @GET("movie/{movie_id}/similar")
     fun getSimilarMovies(
         @Path("movie_id") movieId: Int,
-        @Query("api_key") apiKey: String,
         @Query("page") page: Int = 1
     ): Single<MoviesResponse>
 }
