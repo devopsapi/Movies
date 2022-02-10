@@ -1,21 +1,19 @@
 package com.example.moviedb.ui.screens.movie_details
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
 import android.os.Bundle
 import android.view.*
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import com.bumptech.glide.Glide
-import android.widget.TextView
 import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.example.moviedb.R
-import com.example.moviedb.data.api.responses.MovieDetailsResponse
+import com.example.moviedb.data.api.responses.MovieDetails
 import com.example.moviedb.data.model.MovieModel
 import com.example.moviedb.databinding.FragmentMovieDetailBinding
 import com.example.moviedb.ui.adapters.MoviesAdapter
@@ -30,6 +28,13 @@ class MovieDetailFragment : Fragment() {
     private val movieDetailsViewModel: MovieDetailsViewModel by viewModels()
     private val similarMovieViewModel: SimilarMovieViewModel by viewModels()
     private val safeArgs: MovieDetailFragmentArgs by navArgs()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        movieDetailsViewModel.getMovieDetails(safeArgs.movieId)
+        similarMovieViewModel.getSimilarMovies(safeArgs.movieId)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,9 +54,6 @@ class MovieDetailFragment : Fragment() {
         binding.backBtn.setOnClickListener {
             findNavController().navigateUp()
         }
-
-        movieDetailsViewModel.getMovieDetails(safeArgs.movieId)
-        similarMovieViewModel.getSimilarMovies(safeArgs.movieId)
     }
 
     private fun observeData() {
@@ -99,34 +101,26 @@ class MovieDetailFragment : Fragment() {
 
 
     @SuppressLint("SetTextI18n")
-    private fun updateMovieDetails(movieDetails: MovieDetailsResponse) {
+    private fun updateMovieDetails(movieDetails: MovieDetails) {
         with(movieDetails) {
             binding.apply {
+
                 movieTitle.text = title
-                movieOverview.text = if (overview.isNotEmpty()) overview else "No overview"
-                movieReleaseDate.text =
-                    if (release_date.isNotEmpty()) "Release: $release_date" else "No date"
-                movieRating.text = if (vote_average == null) "Rating: $vote_average" else "No votes"
+                movieOverview.text = overview
+                movieReleaseDate.text = releaseDate
+                movieRating.text = voteAverage
 
                 val layoutParams = ViewGroup.MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
                     ViewGroup.LayoutParams.WRAP_CONTENT)
 
-                if (genres.isNotEmpty()) {
-                    for (genre in genres) {
-                        if (genres.indexOf(genre) == 0) layoutParams.marginStart =
-                            0 else layoutParams.marginStart = 30
-                        val genreTab = TextView(context)
-                        genreTab.text = genre.name
-                        genreTab.layoutParams = layoutParams
-                        genreTab.setTextAppearance(R.style.movieOverview)
-                        binding.layoutForGenres.addView(genreTab)
-                    }
-                } else {
-                    val noGenre = TextView(context)
-                    noGenre.text = "No genre(s)"
-                    noGenre.setTextAppearance(R.style.movieOverview)
-                    noGenre.layoutParams = layoutParams
-                    binding.layoutForGenres.addView(noGenre)
+                for (genre in genres) {
+                    if (genres.indexOf(genre) == 0) layoutParams.marginStart =
+                        0 else layoutParams.marginStart = 30
+                    val genreTab = TextView(context)
+                    genreTab.text = genre.name
+                    genreTab.layoutParams = layoutParams
+                    genreTab.setTextAppearance(R.style.movieOverview)
+                    binding.layoutForGenres.addView(genreTab)
                 }
 
                 context?.let {
@@ -142,16 +136,10 @@ class MovieDetailFragment : Fragment() {
     private fun setupRecyclerView() {
         binding.rvMovies.apply {
 
-            val l = LinearLayoutManager(context)
-            l.orientation = LinearLayoutManager.HORIZONTAL
+            val layout = LinearLayoutManager(context)
+            layout.orientation = LinearLayoutManager.HORIZONTAL
 
-            layoutManager = l
-
-//                if (requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-//                    GridLayoutManager(context, 2)
-//                } else {
-//                    GridLayoutManager(context, 4)
-//                }
+            layoutManager = layout
 
             adapter = moviesAdapter
 
@@ -160,7 +148,6 @@ class MovieDetailFragment : Fragment() {
                     super.onScrolled(recyclerView, dx, dy)
 
                     if (dx > 0) {
-                        //   val totalItemCount = (layoutManager as GridLayoutManager).itemCount
                         val totalItemCount = (layoutManager as LinearLayoutManager).itemCount
                         val lastVisibleItemPosition =
                             (layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
@@ -192,3 +179,4 @@ class MovieDetailFragment : Fragment() {
         const val URL = "https://image.tmdb.org/t/p/w500"
     }
 }
+

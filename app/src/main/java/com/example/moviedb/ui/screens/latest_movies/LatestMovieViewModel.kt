@@ -37,7 +37,7 @@ class LatestMovieViewModel @Inject constructor(var repo: MoviesRepository) : Vie
     }
 
     fun getLatestMovies() {
-        if (!isLoading.value!!){
+        if (!isLoading.value!!) {
             _isLoading.value = true
             compositeDisposable.add(
                 repo.getLatestMovie()

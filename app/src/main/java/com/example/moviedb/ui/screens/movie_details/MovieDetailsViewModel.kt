@@ -3,7 +3,8 @@ package com.example.moviedb.ui.screens.movie_details
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.moviedb.data.api.responses.MovieDetailsResponse
+import com.example.moviedb.data.api.responses.MovieDetails
+import com.example.moviedb.data.api.responses.convertToMovieDetails
 import com.example.moviedb.data.repository.MoviesRepository
 import com.example.moviedb.utils.ErrorEntity
 import com.example.moviedb.utils.defineErrorType
@@ -18,8 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MovieDetailsViewModel @Inject constructor(var repo: MoviesRepository) : ViewModel() {
 
-    private val _movieDetails = MutableLiveData<MovieDetailsResponse>()
-    val movieDetails: LiveData<MovieDetailsResponse>
+    private val _movieDetails = MutableLiveData<MovieDetails>()
+    val movieDetails: LiveData<MovieDetails>
         get() = _movieDetails
 
     private val compositeDisposable = CompositeDisposable()
@@ -41,14 +42,14 @@ class MovieDetailsViewModel @Inject constructor(var repo: MoviesRepository) : Vi
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { response ->
                     if (response.isSuccess()) {
-                        _movieDetails.value = response.data
+                        _movieDetails.value = response.data?.convertToMovieDetails()
 
                         Timber.i("Network request in details")
                     } else {
-                           _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
+                        _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
                         _error.value = response.error.toString()
                     }
-               }
+                }
         )
 
         _isLoading.value = false

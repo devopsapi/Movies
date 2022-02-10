@@ -1,7 +1,7 @@
 package com.example.moviedb.data.repository
 
 import com.example.moviedb.data.api.MovieApi
-import com.example.moviedb.data.api.responses.MovieDetailsResponse
+import com.example.moviedb.data.api.responses.MovieDetailsDTO
 import com.example.moviedb.data.api.responses.MoviesResponse
 import com.example.moviedb.data.model.MovieModel
 import com.example.moviedb.utils.GeneralErrorHandlerImpl
@@ -24,7 +24,7 @@ class MoviesRepository @Inject constructor(var movieApi: MovieApi) {
             .toResult(GeneralErrorHandlerImpl())
     }
 
-    fun getMovieDetails(movieId: Int): Single<Result<MovieDetailsResponse>> {
+    fun getMovieDetails(movieId: Int): Single<Result<MovieDetailsDTO>> {
         return movieApi.getMovieDetails(movieId)
             .toResult(GeneralErrorHandlerImpl())
     }

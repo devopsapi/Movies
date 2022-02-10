@@ -28,6 +28,8 @@ class HomeFragment : Fragment() {
 
     private var CURRENT_FRAGMENT_POSITION = 0
     private val POSITION_KEY = "Current position"
+    private val QUERY_KEY = "Query"
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -56,16 +58,10 @@ class HomeFragment : Fragment() {
 
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 // Handle tab select
-                when (tab?.position) {
-                    0 -> fragment = PopularMoviesListFragment()
-                    1 -> fragment = LatestMoviesFragment()
-                    2 -> fragment = NowPlayingMoviesFragment()
-                    3 -> fragment = TopRatedMoviesFragment()
-                    4 -> fragment = UpcomingMoviesFragment()
-                }
 
                 CURRENT_FRAGMENT_POSITION = tab?.position ?: 0
 
+                fragment = selectTabFragment(tab?.position ?: 0)
                 fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
                 fragmentTransaction.replace(R.id.frameLayout, fragment)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -93,14 +89,13 @@ class HomeFragment : Fragment() {
                 @SuppressLint("ResourceAsColor")
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     if (query != null) {
+                        clearFocus()
 
                         binding.tabsLayout.selectTab(null)
                         binding.tabsLayout.tabSelectedIndicator.alpha = 0
 
-                        clearFocus()
-
                         val bundle = Bundle()
-                        bundle.putString("Query", query)
+                        bundle.putString(QUERY_KEY, query)
 
                         fragment = SearchFragment()
                         fragment.arguments = bundle

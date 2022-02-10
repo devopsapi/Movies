@@ -1,6 +1,6 @@
 package com.example.moviedb.data.api
 
-import com.example.moviedb.data.api.responses.MovieDetailsResponse
+import com.example.moviedb.data.api.responses.MovieDetailsDTO
 import com.example.moviedb.data.api.responses.MoviesResponse
 import com.example.moviedb.data.model.MovieModel
 import io.reactivex.rxjava3.core.Single
@@ -17,7 +17,7 @@ interface MovieApi {
     @GET("movie/{movie_id}")
     fun getMovieDetails(
         @Path("movie_id") movieId: Int,
-    ): Single<MovieDetailsResponse>
+    ): Single<MovieDetailsDTO>
 
     @GET("movie/{movie_id}/similar")
     fun getSimilarMovies(
