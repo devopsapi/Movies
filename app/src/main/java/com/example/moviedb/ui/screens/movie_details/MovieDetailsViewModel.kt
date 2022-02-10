@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 
@@ -23,12 +24,17 @@ class MovieDetailsViewModel @Inject constructor(var repo: MoviesRepository) : Vi
 
     private val compositeDisposable = CompositeDisposable()
 
-
     private val _error = MutableLiveData<String>()
     val error: LiveData<String>
         get() = _error
 
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
+
+
     fun getMovieDetails(movieId: Int) {
+        _isLoading.value = true
         compositeDisposable.add(
             repo.getMovieDetails(movieId)
                 .subscribeOn(Schedulers.io())
@@ -36,12 +42,18 @@ class MovieDetailsViewModel @Inject constructor(var repo: MoviesRepository) : Vi
                 .subscribe { response ->
                     if (response.isSuccess()) {
                         _movieDetails.value = response.data
+
+                        Timber.i("Network request in details")
                     } else {
-                        _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
+                           _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
+                        _error.value = response.error.toString()
                     }
-                }
+               }
         )
+
+        _isLoading.value = false
     }
+
 
     override fun onCleared() {
         super.onCleared()

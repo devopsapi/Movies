@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.similar_movies
+package com.example.moviedb.ui.screens.latest_movies
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,57 +11,49 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
 import io.reactivex.rxjava3.schedulers.Schedulers
-import java.util.ArrayList
+import timber.log.Timber
 import javax.inject.Inject
 
 
 @HiltViewModel
-class SimilarMovieViewModel @Inject constructor(var repo: MoviesRepository) : ViewModel() {
+class LatestMovieViewModel @Inject constructor(var repo: MoviesRepository) : ViewModel() {
 
-    private val _movieList = MutableLiveData<List<MovieModel>>()
-    val movieList: LiveData<List<MovieModel>>
-        get() = _movieList
-    private val allLoadedMovies = ArrayList<MovieModel>()
-
-    private var totalPages: Int = 1
-    private var currentPage: Int = 1
-    private val compositeDisposable = CompositeDisposable()
-
-
-    private var isLoading = false
+    private val _latestMovieList = MutableLiveData<MovieModel>()
+    val latestMovieList: LiveData<MovieModel>
+        get() = _latestMovieList
 
     private val _error = MutableLiveData<String>()
     val error: LiveData<String>
         get() = _error
 
-    fun getSimilarMovies(movieId: Int) {
-        if (!isLoading && canLoadMore()) {
-            isLoading = true
+    private val compositeDisposable = CompositeDisposable()
+
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
+
+    init {
+        getLatestMovies()
+    }
+
+    fun getLatestMovies() {
+        if (!isLoading.value!!){
+            _isLoading.value = true
             compositeDisposable.add(
-                repo.getSimilarMovies(movieId, currentPage)
+                repo.getLatestMovie()
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { response ->
                         if (response.isSuccess()) {
-                            response.data?.movies?.let { allLoadedMovies.addAll(it) }
-                            _movieList.value = allLoadedMovies
-                            totalPages = response.data?.total_pages ?: 1
-                            isLoading = false
-                            currentPage++
+                            _latestMovieList.value = response.data
+                            _isLoading.value = false
+                            Timber.i("Network request in latest")
                         } else {
                             _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
                         }
                     }
             )
         }
-    }
-
-    private fun canLoadMore(): Boolean {
-        if (currentPage == 1) {
-            return true
-        }
-
-        return currentPage < totalPages
     }
 
     override fun onCleared() {

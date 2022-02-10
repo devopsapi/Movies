@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.popular_movies
+package com.example.moviedb.ui.screens.upcoming_movies
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -11,19 +11,19 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.moviedb.ui.adapters.MoviesAdapter
-import com.example.moviedb.databinding.FragmentMovieListBinding
 import com.example.moviedb.data.model.MovieModel
+import com.example.moviedb.databinding.FragmentMovieListBinding
+import com.example.moviedb.ui.adapters.MoviesAdapter
 import com.example.moviedb.ui.screens.HomeFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
-
 @AndroidEntryPoint
-class PopularMoviesListFragment : Fragment() {
+class UpcomingMoviesFragment : Fragment() {
+
     private var moviesAdapter = MoviesAdapter()
     private lateinit var binding: FragmentMovieListBinding
-    private val movieListViewModel: PopularMoviesListViewModel by viewModels()
+    private val upcomingMoviesViewModel: UpcomingMoviesViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -42,7 +42,7 @@ class PopularMoviesListFragment : Fragment() {
     }
 
     private fun observeData() {
-        movieListViewModel.apply {
+        upcomingMoviesViewModel.apply {
             isLoading.observe(viewLifecycleOwner, {
                 if (it) {
                     binding.progressBar.visibility =
@@ -61,6 +61,7 @@ class PopularMoviesListFragment : Fragment() {
             })
         }
     }
+
 
     private fun setUpRecyclerView() {
         binding.rvMovies.apply {
@@ -84,11 +85,11 @@ class PopularMoviesListFragment : Fragment() {
 
 
                         Timber.i("--------------------------")
-                        Timber.i(" TOTAL$totalItemCount")
+                        Timber.i(" $totalItemCount")
                         Timber.i("LAST_VISIBLE_ITEM: $lastVisibleItemPosition")
 
                         if ((lastVisibleItemPosition + 1) >= totalItemCount) {
-                            movieListViewModel.getPopularMovies()
+                            upcomingMoviesViewModel.getUpcomingMovies()
                         }
                     }
                 }
@@ -96,11 +97,12 @@ class PopularMoviesListFragment : Fragment() {
         }
     }
 
+
     private fun setUpAdapter() {
         moviesAdapter.onMovieItemClickListener =
             object : MoviesAdapter.OnMovieItemClickListener {
                 override fun onItemClick(item: MovieModel) {
-                    this@PopularMoviesListFragment.findNavController()
+                    this@UpcomingMoviesFragment.findNavController()
                         .navigate(
                             HomeFragmentDirections.actionHomeTestToMovieDetailFragment(
                                 item.id

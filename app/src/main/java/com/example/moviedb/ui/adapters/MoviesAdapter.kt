@@ -1,9 +1,10 @@
-package com.example.moviedb.ui.adapter
+package com.example.moviedb.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.moviedb.R
 import com.example.moviedb.databinding.MovieItemBinding
 import com.example.moviedb.data.model.MovieModel
 import java.util.*
@@ -15,7 +16,7 @@ class MoviesAdapter : RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>() {
 
     override fun onCreateViewHolder(
         parent: ViewGroup,
-        viewType: Int
+        viewType: Int,
     ): MoviesAdapter.MovieViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return MovieViewHolder(MovieItemBinding.inflate(inflater, parent, false))
@@ -51,6 +52,7 @@ class MoviesAdapter : RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>() {
 
                 Glide.with(root)
                     .load(IMAGE_URL + item.poster_path)
+                    .error(R.drawable.no_poster)
                     .into(moviePoster)
 
                 root.setOnClickListener {

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/onboard"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <View
+        android:id="@+id/on_board_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:background="@drawable/on_board_image" />
+
+    <View
+        android:id="@+id/rectangle_1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/dark_effect_1" />
+
+    <RelativeLayout
+        android:id="@+id/frame_13"
+        android:layout_width="wrap_content"
+        android:layout_height="280dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="90dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textColor="@color/white"
+            android:textSize="28sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/getStartedBtn"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="30dp"
+            android:gravity="top"
+            android:text="@string/all_about"
+            android:textAppearance="@style/all_about" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/getStartedBtn"
+            android:layout_width="300dp"
+            android:layout_height="55dp"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/search_bar_design"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="80dp"
+            android:text="@string/get_started"
+            android:textColor="@color/white"
+            app:cornerRadius="25dp" />
+
+</RelativeLayout>
+
+    </RelativeLayout>

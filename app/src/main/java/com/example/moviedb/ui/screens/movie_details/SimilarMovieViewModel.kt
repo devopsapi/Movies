@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.popular_movies
+package com.example.moviedb.ui.screens.movie_details
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -17,15 +17,15 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class PopularMoviesListViewModel @Inject constructor(var repo: MoviesRepository) : ViewModel() {
+class SimilarMovieViewModel @Inject constructor(var repo: MoviesRepository) : ViewModel() {
 
     private val _movieList = MutableLiveData<List<MovieModel>>()
     val movieList: LiveData<List<MovieModel>>
         get() = _movieList
     private val allLoadedMovies = ArrayList<MovieModel>()
 
-    private var currentPage = 1
     private var totalPages: Int = 1
+    private var currentPage: Int = 1
     private val compositeDisposable = CompositeDisposable()
 
     private val _error = MutableLiveData<String>()
@@ -36,32 +36,36 @@ class PopularMoviesListViewModel @Inject constructor(var repo: MoviesRepository)
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
+    private val _noSimilarMovies = MutableLiveData("")
+    val noSimilarMovies: LiveData<String>
+        get() = _noSimilarMovies
 
-    init {
-        Timber.i("popular view model created")
-        getPopularMovies()
-    }
-
-    fun getPopularMovies() {
+    fun getSimilarMovies(movieId: Int) {
         if (!_isLoading.value!! && canLoadMore()) {
             _isLoading.value = true
             compositeDisposable.add(
-                repo.getPopularMovies(currentPage)
+                repo.getSimilarMovies(movieId, currentPage)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { response ->
                         if (response.isSuccess()) {
-                            response.data?.movies?.let { allLoadedMovies.addAll(it) }
-                            _movieList.value = allLoadedMovies
-                            totalPages = response.data?.total_pages ?: 1
+                            if (response.data?.movies?.isEmpty() == true) {
+                                _noSimilarMovies.value = "No similar movies"
+                            } else {
+                                response.data?.movies?.let { allLoadedMovies.addAll(it) }
+                                _movieList.value = allLoadedMovies
+                                totalPages = response.data?.total_pages ?: 1
+
+                                currentPage++
+                            }
                             _isLoading.value = false
-                            currentPage++
-                            Timber.i("Network request in popular")
+
+                            Timber.i("Network request in similar")
                         } else {
-                            _error.value =
-                                defineErrorType(response.error ?: ErrorEntity.Unknown)
+                            _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
                         }
-                    })
+                    }
+            )
         }
     }
 
@@ -69,6 +73,7 @@ class PopularMoviesListViewModel @Inject constructor(var repo: MoviesRepository)
         if (currentPage == 1) {
             return true
         }
+
         return currentPage < totalPages
     }
 
@@ -79,6 +84,3 @@ class PopularMoviesListViewModel @Inject constructor(var repo: MoviesRepository)
         }
     }
 }
-
-
-

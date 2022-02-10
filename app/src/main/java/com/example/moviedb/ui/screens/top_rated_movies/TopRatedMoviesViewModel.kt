@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.popular_movies
+package com.example.moviedb.ui.screens.top_rated_movies
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,9 +15,8 @@ import timber.log.Timber
 import java.util.ArrayList
 import javax.inject.Inject
 
-
 @HiltViewModel
-class PopularMoviesListViewModel @Inject constructor(var repo: MoviesRepository) : ViewModel() {
+class TopRatedMoviesViewModel @Inject constructor(var repo: MoviesRepository) : ViewModel() {
 
     private val _movieList = MutableLiveData<List<MovieModel>>()
     val movieList: LiveData<List<MovieModel>>
@@ -36,17 +35,15 @@ class PopularMoviesListViewModel @Inject constructor(var repo: MoviesRepository)
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
-
     init {
-        Timber.i("popular view model created")
-        getPopularMovies()
+        getTopRatedMovies()
     }
 
-    fun getPopularMovies() {
+    fun getTopRatedMovies() {
         if (!_isLoading.value!! && canLoadMore()) {
             _isLoading.value = true
             compositeDisposable.add(
-                repo.getPopularMovies(currentPage)
+                repo.getTopRatedMovies(currentPage)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe { response ->
@@ -56,10 +53,10 @@ class PopularMoviesListViewModel @Inject constructor(var repo: MoviesRepository)
                             totalPages = response.data?.total_pages ?: 1
                             _isLoading.value = false
                             currentPage++
-                            Timber.i("Network request in popular")
+
+                            Timber.i("Network request in top rated")
                         } else {
-                            _error.value =
-                                defineErrorType(response.error ?: ErrorEntity.Unknown)
+                            _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
                         }
                     })
         }
@@ -79,6 +76,3 @@ class PopularMoviesListViewModel @Inject constructor(var repo: MoviesRepository)
         }
     }
 }
-
-
-

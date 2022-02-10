@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.popular_movies
+package com.example.moviedb.ui.screens.now_playing_movies
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -11,24 +11,25 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.moviedb.ui.adapters.MoviesAdapter
-import com.example.moviedb.databinding.FragmentMovieListBinding
 import com.example.moviedb.data.model.MovieModel
+import com.example.moviedb.databinding.FragmentMovieListBinding
+import com.example.moviedb.ui.adapters.MoviesAdapter
 import com.example.moviedb.ui.screens.HomeFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
-
 @AndroidEntryPoint
-class PopularMoviesListFragment : Fragment() {
+class NowPlayingMoviesFragment : Fragment() {
+
     private var moviesAdapter = MoviesAdapter()
     private lateinit var binding: FragmentMovieListBinding
-    private val movieListViewModel: PopularMoviesListViewModel by viewModels()
+    private val nowPlayingMoviesViewModel: NowPlayingMoviesViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
+
         binding = FragmentMovieListBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -41,8 +42,11 @@ class PopularMoviesListFragment : Fragment() {
         observeData()
     }
 
+
     private fun observeData() {
-        movieListViewModel.apply {
+
+        nowPlayingMoviesViewModel.apply {
+
             isLoading.observe(viewLifecycleOwner, {
                 if (it) {
                     binding.progressBar.visibility =
@@ -53,7 +57,7 @@ class PopularMoviesListFragment : Fragment() {
             })
 
             movieList.observe(viewLifecycleOwner, {
-                updateViews(it)
+                moviesAdapter.setData(it)
             })
 
             error.observe(viewLifecycleOwner, { errorMessage ->
@@ -61,6 +65,7 @@ class PopularMoviesListFragment : Fragment() {
             })
         }
     }
+
 
     private fun setUpRecyclerView() {
         binding.rvMovies.apply {
@@ -84,11 +89,11 @@ class PopularMoviesListFragment : Fragment() {
 
 
                         Timber.i("--------------------------")
-                        Timber.i(" TOTAL$totalItemCount")
+                        Timber.i(" $totalItemCount")
                         Timber.i("LAST_VISIBLE_ITEM: $lastVisibleItemPosition")
 
                         if ((lastVisibleItemPosition + 1) >= totalItemCount) {
-                            movieListViewModel.getPopularMovies()
+                            nowPlayingMoviesViewModel.getNowPlayingMovies()
                         }
                     }
                 }
@@ -100,7 +105,7 @@ class PopularMoviesListFragment : Fragment() {
         moviesAdapter.onMovieItemClickListener =
             object : MoviesAdapter.OnMovieItemClickListener {
                 override fun onItemClick(item: MovieModel) {
-                    this@PopularMoviesListFragment.findNavController()
+                    this@NowPlayingMoviesFragment.findNavController()
                         .navigate(
                             HomeFragmentDirections.actionHomeTestToMovieDetailFragment(
                                 item.id
@@ -108,9 +113,5 @@ class PopularMoviesListFragment : Fragment() {
                         )
                 }
             }
-    }
-
-    private fun updateViews(movieList: List<MovieModel>) {
-        moviesAdapter.setData(movieList)
     }
 }

@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.similar_movies
+package com.example.moviedb.ui.screens.latest_movies
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -6,32 +6,24 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.moviedb.ui.adapter.MoviesAdapter
-import com.example.moviedb.databinding.FragmentMovieListBinding
 import com.example.moviedb.data.model.MovieModel
+import com.example.moviedb.databinding.FragmentMovieListBinding
+import com.example.moviedb.ui.adapters.MoviesAdapter
+import com.example.moviedb.ui.screens.HomeFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
 @AndroidEntryPoint
-class SimilarMovieListFragment : Fragment() {
+class LatestMoviesFragment : Fragment() {
 
-    private var moviesAdapter = MoviesAdapter()
-    private lateinit var progressBar: ProgressBar
     private lateinit var binding: FragmentMovieListBinding
-    private val safeArgs: SimilarMovieListFragmentArgs by navArgs()
-    private val similarMovieViewModel: SimilarMovieViewModel by viewModels()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        similarMovieViewModel.getSimilarMovies(safeArgs.movieId)
-    }
+    private var moviesAdapter = MoviesAdapter()
+    private val latestMovieVieModel: LatestMovieViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -44,8 +36,6 @@ class SimilarMovieListFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        progressBar = binding.progressBar
-
         setUpAdapter()
         setUpRecyclerView()
         observeData()
@@ -54,9 +44,9 @@ class SimilarMovieListFragment : Fragment() {
     private fun setUpAdapter() {
         moviesAdapter.onMovieItemClickListener = object : MoviesAdapter.OnMovieItemClickListener {
             override fun onItemClick(item: MovieModel) {
-                this@SimilarMovieListFragment.findNavController()
+                this@LatestMoviesFragment.findNavController()
                     .navigate(
-                        SimilarMovieListFragmentDirections.actionSimilarMovieListFragmentToMovieDetailFragment(
+                        HomeFragmentDirections.actionHomeTestToMovieDetailFragment(
                             item.id
                         )
                     )
@@ -78,16 +68,19 @@ class SimilarMovieListFragment : Fragment() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
 
-                    val totalItemCount = (layoutManager as GridLayoutManager).itemCount
-                    val lastVisibleItemPosition =
-                        (layoutManager as GridLayoutManager).findLastVisibleItemPosition()
+                    if (dy > 0) {
 
-                    Timber.i("--------------------------")
-                    Timber.i(" $totalItemCount")
-                    Timber.i("LAST_VISIBLE_ITEM: $lastVisibleItemPosition")
+                        val totalItemCount = (layoutManager as GridLayoutManager).itemCount
+                        val lastVisibleItemPosition =
+                            (layoutManager as GridLayoutManager).findLastVisibleItemPosition()
 
-                    if ((lastVisibleItemPosition + 1) >= totalItemCount) {
-                        similarMovieViewModel.getSimilarMovies(safeArgs.movieId)
+                        Timber.i("--------------------------")
+                        Timber.i(" $totalItemCount")
+                        Timber.i("LAST_VISIBLE_ITEM: $lastVisibleItemPosition")
+
+                        if ((lastVisibleItemPosition + 1) >= totalItemCount) {
+                            latestMovieVieModel.getLatestMovies()
+                        }
                     }
                 }
             })
@@ -95,9 +88,18 @@ class SimilarMovieListFragment : Fragment() {
     }
 
     private fun observeData() {
-        similarMovieViewModel.apply {
-            movieList.observe(viewLifecycleOwner, {
-                updateData(it)
+        latestMovieVieModel.apply {
+            isLoading.observe(viewLifecycleOwner, {
+                if (it) {
+                    binding.progressBar.visibility =
+                        View.VISIBLE
+                } else {
+                    binding.progressBar.visibility = View.GONE
+                }
+            })
+
+            latestMovieList.observe(viewLifecycleOwner, {
+                updateData(listOf(it))
             })
 
             error.observe(viewLifecycleOwner, { errorMessage ->
@@ -110,4 +112,3 @@ class SimilarMovieListFragment : Fragment() {
         moviesAdapter.setData(movieList)
     }
 }
-

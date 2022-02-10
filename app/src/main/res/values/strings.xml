@@ -1,5 +1,16 @@
 <resources>
-    <string name="app_name">MovieDb</string>
+    <string name="app_name">The Movie DB</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="similar_movies">Similar movies</string>
+    <string name="get_started">Get started</string>
+    <string name="all_about">All about movies, series, anime and more.</string>
+    <string name="what_to_watch">What to watch today?</string>
+    <string name="latest">Latest</string>
+    <string name="now_playing">Now playing</string>
+    <string name="popular">Popular</string>
+    <string name="top_rated">Top rated</string>
+    <string name="upcoming">Upcoming</string>
+    <string name="back">Back</string>
+    <string name="genre_s">Genre(s)</string>
+
 </resources>
