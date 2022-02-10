@@ -12,6 +12,7 @@ import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moviedb.R
 import com.example.moviedb.data.api.responses.MovieDetailsResponse
@@ -102,7 +103,7 @@ class MovieDetailFragment : Fragment() {
         with(movieDetails) {
             binding.apply {
                 movieTitle.text = title
-                movieOverview.text = overview
+                movieOverview.text = if (overview.isNotEmpty()) overview else "No overview"
                 movieReleaseDate.text =
                     if (release_date.isNotEmpty()) "Release: $release_date" else "No date"
                 movieRating.text = if (vote_average == null) "Rating: $vote_average" else "No votes"
@@ -140,22 +141,29 @@ class MovieDetailFragment : Fragment() {
 
     private fun setupRecyclerView() {
         binding.rvMovies.apply {
-            layoutManager =
-                if (requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    GridLayoutManager(context, 2)
-                } else {
-                    GridLayoutManager(context, 4)
-                }
+
+            val l = LinearLayoutManager(context)
+            l.orientation = LinearLayoutManager.HORIZONTAL
+
+            layoutManager = l
+
+//                if (requireActivity().resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+//                    GridLayoutManager(context, 2)
+//                } else {
+//                    GridLayoutManager(context, 4)
+//                }
+
             adapter = moviesAdapter
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     super.onScrolled(recyclerView, dx, dy)
 
-                    if (dy > 0) {
-                        val totalItemCount = (layoutManager as GridLayoutManager).itemCount
+                    if (dx > 0) {
+                        //   val totalItemCount = (layoutManager as GridLayoutManager).itemCount
+                        val totalItemCount = (layoutManager as LinearLayoutManager).itemCount
                         val lastVisibleItemPosition =
-                            (layoutManager as GridLayoutManager).findLastVisibleItemPosition()
+                            (layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
 
                         Timber.i("--------------------------")
                         Timber.i(" $totalItemCount")
