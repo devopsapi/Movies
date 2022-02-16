@@ -1,8 +1,10 @@
-package com.example.moviedb.ui.screens.movie_details
+package com.example.moviedb.ui.screens.movies.details
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.moviedb.data.api.responses.MovieDetails
+import com.example.moviedb.data.api.responses.convertToMovieDetails
 import com.example.moviedb.data.model.MovieModel
 import com.example.moviedb.data.repository.MoviesRepository
 import com.example.moviedb.utils.ErrorEntity
@@ -17,7 +19,11 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class SimilarMovieViewModel @Inject constructor(var repo: MoviesRepository) : ViewModel() {
+class MovieDetailsViewModel @Inject constructor(var repo: MoviesRepository) : ViewModel() {
+
+    private val _movieDetails = MutableLiveData<MovieDetails>()
+    val movieDetails: LiveData<MovieDetails>
+        get() = _movieDetails
 
     private val _movieList = MutableLiveData<List<MovieModel>>()
     val movieList: LiveData<List<MovieModel>>
@@ -26,19 +32,44 @@ class SimilarMovieViewModel @Inject constructor(var repo: MoviesRepository) : Vi
 
     private var totalPages: Int = 1
     private var currentPage: Int = 1
-    private val compositeDisposable = CompositeDisposable()
 
-    private val _error = MutableLiveData<String>()
-    val error: LiveData<String>
-        get() = _error
+    private val _noSimilarMovies = MutableLiveData("")
+    val noSimilarMovies: LiveData<String>
+        get() = _noSimilarMovies
+
+    private val _movieDetailsError = MutableLiveData<String>()
+    val movieDetailsError: LiveData<String>
+        get() = _movieDetailsError
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
-    private val _noSimilarMovies = MutableLiveData("")
-    val noSimilarMovies: LiveData<String>
-        get() = _noSimilarMovies
+
+    private val compositeDisposable = CompositeDisposable()
+
+    fun getMovieDetails(movieId: Int) {
+        _isLoading.value = true
+        compositeDisposable.add(
+            repo.getMovieDetails(movieId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { response ->
+                    if (response.isSuccess()) {
+                        _movieDetails.value = response.data?.convertToMovieDetails()
+
+                        Timber.i("Network request in details")
+                    } else {
+                        _movieDetailsError.value =
+                            defineErrorType(response.error ?: ErrorEntity.Unknown)
+                        _movieDetailsError.value = response.error.toString()
+                    }
+                }
+        )
+
+        _isLoading.value = false
+    }
+
 
     fun getSimilarMovies(movieId: Int) {
         if (!_isLoading.value!! && canLoadMore()) {
@@ -62,7 +93,8 @@ class SimilarMovieViewModel @Inject constructor(var repo: MoviesRepository) : Vi
 
                             Timber.i("Network request in similar")
                         } else {
-                            _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
+                            _movieDetailsError.value =
+                                defineErrorType(response.error ?: ErrorEntity.Unknown)
                         }
                     }
             )
@@ -76,6 +108,7 @@ class SimilarMovieViewModel @Inject constructor(var repo: MoviesRepository) : Vi
 
         return currentPage < totalPages
     }
+
 
     override fun onCleared() {
         super.onCleared()

@@ -3,27 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/onBoardTest">
+    app:startDestination="@id/onBoard">
     <fragment
-        android:id="@+id/onBoardTest"
+        android:id="@+id/onBoard"
+        android:label="onBoard"
         android:name="com.example.moviedb.ui.screens.OnBoardFragment"
         tools:layout="@layout/fragment_on_board">
         <action
-            android:id="@+id/action_onBoardTest_to_homeTest"
-            app:destination="@id/homeTest" />
+            android:id="@+id/action_onBoard_to_home"
+            app:destination="@id/homeScreen"
+            app:launchSingleTop="false" />
     </fragment>
     <fragment
-        android:id="@+id/homeTest"
-        android:name="com.example.moviedb.ui.screens.HomeFragment"
-        android:label="HomeTest"
+        android:id="@+id/homeScreen"
+        android:name="com.example.moviedb.ui.screens.home.HomeFragment"
+        android:label="Home"
         tools:layout="@layout/fragment_home">
         <action
-            android:id="@+id/action_homeTest_to_movieDetailFragment"
+            android:id="@+id/action_home_to_movieDetailFragment"
             app:destination="@id/movieDetailFragment" />
     </fragment>
     <fragment
         android:id="@+id/movieDetailFragment"
-        android:name="com.example.moviedb.ui.screens.movie_details.MovieDetailFragment"
+        android:name="com.example.moviedb.ui.screens.movies.details.MovieDetailFragment"
         android:label="MovieDetailFragment"
         tools:layout="@layout/fragment_movie_detail">
         <argument

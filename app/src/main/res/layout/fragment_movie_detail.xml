@@ -14,7 +14,7 @@
         <ImageView
             android:id="@+id/moviePoster"
             android:layout_width="match_parent"
-            android:layout_height="600dp"
+            android:layout_height="585dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -193,11 +193,11 @@
                 android:id="@+id/rvMovies"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="35dp"
                 android:layout_marginTop="20dp"
                 android:scrollbars="horizontal"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/similarMovies"
+                app:flow_horizontalAlign="start"
                 tools:listitem="@layout/movie_item" />
 
             <ProgressBar

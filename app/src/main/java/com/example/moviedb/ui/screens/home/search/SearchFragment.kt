@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.upcoming_movies
+package com.example.moviedb.ui.screens.home.search
 
 import android.content.res.Configuration
 import android.os.Bundle
@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -14,22 +13,26 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.moviedb.data.model.MovieModel
 import com.example.moviedb.databinding.FragmentMovieListBinding
 import com.example.moviedb.ui.adapters.MoviesAdapter
-import com.example.moviedb.ui.screens.HomeFragmentDirections
+import com.example.moviedb.ui.screens.home.HomeFragmentDirections
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
 @AndroidEntryPoint
-class UpcomingMoviesFragment : Fragment() {
+class SearchFragment : Fragment() {
 
-    private var moviesAdapter = MoviesAdapter()
     private lateinit var binding: FragmentMovieListBinding
-    private val upcomingMoviesViewModel: UpcomingMoviesViewModel by viewModels()
+    private val searchViewModel: SearchViewModel by viewModels()
+    private var moviesAdapter = MoviesAdapter()
+    private var query = ""
+    private val KEY = "Query"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentMovieListBinding.inflate(inflater, container, false)
+        query = requireArguments().getString(KEY) ?: ""
+        searchViewModel.searchForMovie(query)
         return binding.root
     }
 
@@ -41,25 +44,18 @@ class UpcomingMoviesFragment : Fragment() {
         observeData()
     }
 
-    private fun observeData() {
-        upcomingMoviesViewModel.apply {
-            isLoading.observe(viewLifecycleOwner, {
-                if (it) {
-                    binding.progressBar.visibility =
-                        View.VISIBLE
-                } else {
-                    binding.progressBar.visibility = View.GONE
+    private fun setUpAdapter() {
+        moviesAdapter.onMovieItemClickListener =
+            object : MoviesAdapter.OnMovieItemClickListener {
+                override fun onItemClick(item: MovieModel) {
+                    this@SearchFragment.findNavController()
+                        .navigate(
+                            HomeFragmentDirections.actionHomeToMovieDetailFragment(
+                                item.id
+                            )
+                        )
                 }
-            })
-
-            movieList.observe(viewLifecycleOwner, {
-                updateViews(it)
-            })
-
-            error.observe(viewLifecycleOwner, { errorMessage ->
-                Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-            })
-        }
+            }
     }
 
 
@@ -85,11 +81,11 @@ class UpcomingMoviesFragment : Fragment() {
 
 
                         Timber.i("--------------------------")
-                        Timber.i(" $totalItemCount")
+                        Timber.i(" TOTAL$totalItemCount")
                         Timber.i("LAST_VISIBLE_ITEM: $lastVisibleItemPosition")
 
                         if ((lastVisibleItemPosition + 1) >= totalItemCount) {
-                            upcomingMoviesViewModel.getUpcomingMovies()
+                            searchViewModel.searchForMovie(query)
                         }
                     }
                 }
@@ -97,22 +93,20 @@ class UpcomingMoviesFragment : Fragment() {
         }
     }
 
-
-    private fun setUpAdapter() {
-        moviesAdapter.onMovieItemClickListener =
-            object : MoviesAdapter.OnMovieItemClickListener {
-                override fun onItemClick(item: MovieModel) {
-                    this@UpcomingMoviesFragment.findNavController()
-                        .navigate(
-                            HomeFragmentDirections.actionHomeTestToMovieDetailFragment(
-                                item.id
-                            )
-                        )
+    private fun observeData() {
+        searchViewModel.apply {
+            isLoading.observe(viewLifecycleOwner, {
+                if (it) {
+                    binding.progressBar.visibility =
+                        View.VISIBLE
+                } else {
+                    binding.progressBar.visibility = View.GONE
                 }
-            }
-    }
+            })
 
-    private fun updateViews(movieList: List<MovieModel>) {
-        moviesAdapter.setData(movieList)
+            movieList.observe(viewLifecycleOwner, {
+                moviesAdapter.setData(it)
+            })
+        }
     }
 }

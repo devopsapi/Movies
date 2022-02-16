@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.movie_details
+package com.example.moviedb.ui.screens.movies.details
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -26,14 +26,13 @@ class MovieDetailFragment : Fragment() {
     private lateinit var binding: FragmentMovieDetailBinding
     private var moviesAdapter = MoviesAdapter()
     private val movieDetailsViewModel: MovieDetailsViewModel by viewModels()
-    private val similarMovieViewModel: SimilarMovieViewModel by viewModels()
     private val safeArgs: MovieDetailFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         movieDetailsViewModel.getMovieDetails(safeArgs.movieId)
-        similarMovieViewModel.getSimilarMovies(safeArgs.movieId)
+        movieDetailsViewModel.getSimilarMovies(safeArgs.movieId)
     }
 
     override fun onCreateView(
@@ -71,24 +70,9 @@ class MovieDetailFragment : Fragment() {
                 updateMovieDetails(it)
             })
 
-            error.observe(viewLifecycleOwner, { errorMessage ->
+            movieDetailsError.observe(viewLifecycleOwner, { errorMessage ->
                 binding.root.visibility = View.GONE
                 Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
-            })
-        }
-
-        similarMovieViewModel.apply {
-            isLoading.observe(viewLifecycleOwner, {
-                if (it) {
-                    binding.progressBar.visibility =
-                        View.VISIBLE
-                } else {
-                    binding.progressBar.visibility = View.GONE
-                }
-            })
-
-            movieList.observe(viewLifecycleOwner, {
-                moviesAdapter.setData(it)
             })
 
             noSimilarMovies.observe(viewLifecycleOwner, {
@@ -96,6 +80,11 @@ class MovieDetailFragment : Fragment() {
                     binding.similarMovies.text = it
                 }
             })
+
+            movieList.observe(viewLifecycleOwner, {
+                moviesAdapter.setData(it)
+            })
+
         }
     }
 
@@ -157,7 +146,7 @@ class MovieDetailFragment : Fragment() {
                         Timber.i("LAST_VISIBLE_ITEM: $lastVisibleItemPosition")
 
                         if ((lastVisibleItemPosition + 1) >= totalItemCount) {
-                            similarMovieViewModel.getSimilarMovies(safeArgs.movieId)
+                            movieDetailsViewModel.getSimilarMovies(safeArgs.movieId)
                         }
                     }
                 }

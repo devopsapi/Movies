@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens
+package com.example.moviedb.ui.screens.home
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -10,12 +10,7 @@ import android.widget.SearchView
 import androidx.fragment.app.FragmentTransaction
 import com.example.moviedb.R
 import com.example.moviedb.databinding.FragmentHomeBinding
-import com.example.moviedb.ui.screens.latest_movies.LatestMoviesFragment
-import com.example.moviedb.ui.screens.now_playing_movies.NowPlayingMoviesFragment
-import com.example.moviedb.ui.screens.popular_movies.PopularMoviesListFragment
-import com.example.moviedb.ui.screens.search_movie.SearchFragment
-import com.example.moviedb.ui.screens.top_rated_movies.TopRatedMoviesFragment
-import com.example.moviedb.ui.screens.upcoming_movies.UpcomingMoviesFragment
+import com.example.moviedb.ui.screens.home.search.SearchFragment
 import com.google.android.material.tabs.TabLayout
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -26,7 +21,7 @@ class HomeFragment : Fragment() {
     private lateinit var fragmentTransaction: FragmentTransaction
     private lateinit var fragment: Fragment
 
-    private var CURRENT_FRAGMENT_POSITION = 0
+    private var CURRENT_TAB_POSITION = 0
     private val POSITION_KEY = "Current position"
     private val QUERY_KEY = "Query"
 
@@ -43,12 +38,16 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         if (savedInstanceState != null) {
-            CURRENT_FRAGMENT_POSITION = savedInstanceState.getInt(POSITION_KEY)
+            CURRENT_TAB_POSITION = savedInstanceState.getInt(POSITION_KEY)
         }
 
-        binding.tabsLayout.selectTab(binding.tabsLayout.getTabAt(CURRENT_FRAGMENT_POSITION))
+        binding.tabsLayout.selectTab(binding.tabsLayout.getTabAt(CURRENT_TAB_POSITION))
 
-        fragment = selectTabFragment(CURRENT_FRAGMENT_POSITION)
+        val bundle = Bundle()
+        bundle.putInt(POSITION_KEY, CURRENT_TAB_POSITION)
+
+        fragment = TabMovieFragment()
+        fragment.arguments = bundle
         fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
         fragmentTransaction.replace(R.id.frameLayout, fragment)
             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -59,9 +58,12 @@ class HomeFragment : Fragment() {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 // Handle tab select
 
-                CURRENT_FRAGMENT_POSITION = tab?.position ?: 0
+                CURRENT_TAB_POSITION = tab?.position ?: 0
 
-                fragment = selectTabFragment(tab?.position ?: 0)
+                bundle.putInt(POSITION_KEY, CURRENT_TAB_POSITION)
+
+                fragment = TabMovieFragment()
+                fragment.arguments = bundle
                 fragmentTransaction = requireActivity().supportFragmentManager.beginTransaction()
                 fragmentTransaction.replace(R.id.frameLayout, fragment)
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
@@ -117,20 +119,8 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun selectTabFragment(position: Int): Fragment {
-        return when (position) {
-            0 -> PopularMoviesListFragment()
-            1 -> LatestMoviesFragment()
-            2 -> NowPlayingMoviesFragment()
-            3 -> TopRatedMoviesFragment()
-            4 -> UpcomingMoviesFragment()
-            else -> PopularMoviesListFragment()
-        }
-    }
-
-
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt(POSITION_KEY, CURRENT_FRAGMENT_POSITION)
+        outState.putInt(POSITION_KEY, CURRENT_TAB_POSITION)
     }
 }

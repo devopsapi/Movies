@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.search_movie
+package com.example.moviedb.ui.screens.home.search
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
