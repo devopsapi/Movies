@@ -3,49 +3,48 @@ package com.example.moviedb.data.api
 import com.example.moviedb.data.api.responses.MovieDetailsDTO
 import com.example.moviedb.data.api.responses.MoviesResponse
 import com.example.moviedb.data.model.MovieModel
-import io.reactivex.rxjava3.core.Single
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface MovieApi {
     @GET("movie/popular")
-    fun getPopularMovies(
+    suspend fun getPopularMovies(
         @Query("page") page: Int = 1,
-    ): Single<MoviesResponse>
+    ): MoviesResponse
 
     @GET("movie/{movie_id}")
-    fun getMovieDetails(
+    suspend fun getMovieDetails(
         @Path("movie_id") movieId: Int,
-    ): Single<MovieDetailsDTO>
+    ): MovieDetailsDTO
 
     @GET("movie/{movie_id}/similar")
-    fun getSimilarMovies(
+    suspend fun getSimilarMovies(
         @Path("movie_id") movieId: Int,
         @Query("page") page: Int = 1,
-    ): Single<MoviesResponse>
+    ): MoviesResponse
 
     @GET("movie/latest")
-    fun getLatestMovies(): Single<MovieModel>
+    suspend fun getLatestMovies(): MovieModel
 
     @GET("movie/now_playing")
-    fun getNowPlayingMovies(
+    suspend fun getNowPlayingMovies(
         @Query("page") page: Int = 1,
-    ): Single<MoviesResponse>
+    ): MoviesResponse
 
     @GET("movie/top_rated")
-    fun getTopRatedMovies(
+    suspend fun getTopRatedMovies(
         @Query("page") page: Int = 1,
-    ): Single<MoviesResponse>
+    ): MoviesResponse
 
     @GET("movie/upcoming")
-    fun getUpcomingMovies(
+    suspend fun getUpcomingMovies(
         @Query("page") page: Int = 1,
-    ): Single<MoviesResponse>
+    ): MoviesResponse
 
     @GET("search/movie")
-    fun searchForMovie(
+    suspend fun searchForMovie(
         @Query("query") query: String,
         @Query("page") page: Int,
-    ): Single<MoviesResponse>
+    ): MoviesResponse
 }

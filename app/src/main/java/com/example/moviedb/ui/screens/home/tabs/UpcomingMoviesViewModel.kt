@@ -1,11 +1,12 @@
 package com.example.moviedb.ui.screens.home.tabs
 
+import androidx.lifecycle.viewModelScope
 import com.example.moviedb.data.repository.MoviesRepository
-import com.example.moviedb.ui.screens.home.MovieViewModel
 import com.example.moviedb.utils.ErrorEntity
 import com.example.moviedb.utils.defineErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -13,16 +14,16 @@ import javax.inject.Inject
 class UpcomingMoviesViewModel @Inject constructor(var repo: MoviesRepository) : MovieViewModel() {
 
     init {
+        Timber.i("upcoming view model created")
         getData()
     }
 
     override fun getData() {
         if (!_isLoading.value!! && canLoadMore()) {
-            _isLoading.value = true
-            compositeDisposable.add(
+            viewModelScope.launch {
+                _isLoading.postValue(true)
                 repo.getUpcomingMovies(currentPage)
-                    .subscribeOn(Schedulers.io())
-                    .subscribe { response ->
+                    .collect { response ->
                         if (response.isSuccess()) {
                             response.data?.movies?.let { allLoadedMovies.addAll(it) }
                             _movieList.postValue(allLoadedMovies)
@@ -34,7 +35,8 @@ class UpcomingMoviesViewModel @Inject constructor(var repo: MoviesRepository) : 
                         } else {
                             _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
                         }
-                    })
+                    }
+            }
         }
     }
 }

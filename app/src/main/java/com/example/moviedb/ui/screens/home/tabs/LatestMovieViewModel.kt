@@ -1,11 +1,12 @@
 package com.example.moviedb.ui.screens.home.tabs
 
+import androidx.lifecycle.viewModelScope
 import com.example.moviedb.data.repository.MoviesRepository
-import com.example.moviedb.ui.screens.home.MovieViewModel
 import com.example.moviedb.utils.ErrorEntity
 import com.example.moviedb.utils.defineErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -14,26 +15,35 @@ import javax.inject.Inject
 class LatestMovieViewModel @Inject constructor(var repo: MoviesRepository) : MovieViewModel() {
 
     init {
-        getLatestMovies()
+        Timber.i("latest view model created")
+        getData()
     }
 
-    fun getLatestMovies() {
+    override fun getData() {
         if (!isLoading.value!!) {
-            _isLoading.value = true
-            compositeDisposable.add(
+            viewModelScope.launch {
+                _isLoading.postValue(true)
                 repo.getLatestMovie()
-                    .subscribeOn(Schedulers.io())
-                    .subscribe { response ->
+                    .collect { response ->
                         if (response.isSuccess()) {
                             response.data?.let { allLoadedMovies.add(it) }
                             _movieList.postValue(allLoadedMovies)
                             _isLoading.postValue(false)
                             Timber.i("Network request in latest")
                         } else {
-                            _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
+                            _error.value =
+                                defineErrorType(response.error ?: ErrorEntity.Unknown)
                         }
                     }
-            )
+            }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        if (!compositeDisposable.isDisposed) {
+            compositeDisposable.dispose()
+        }
+        Timber.i("viewModel destroyed")
     }
 }

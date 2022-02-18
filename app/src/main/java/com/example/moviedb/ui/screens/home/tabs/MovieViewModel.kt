@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.home
+package com.example.moviedb.ui.screens.home.tabs
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -6,11 +6,12 @@ import androidx.lifecycle.ViewModel
 import com.example.moviedb.data.model.MovieModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.disposables.CompositeDisposable
+import timber.log.Timber
 import java.util.ArrayList
 import javax.inject.Inject
 
 @HiltViewModel
-open class MovieViewModel @Inject constructor(): ViewModel() {
+open class MovieViewModel @Inject constructor() : ViewModel() {
 
     protected val _movieList = MutableLiveData<List<MovieModel>>()
     val movieList: LiveData<List<MovieModel>>
@@ -36,15 +37,16 @@ open class MovieViewModel @Inject constructor(): ViewModel() {
         return currentPage < totalPages
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        if (!compositeDisposable.isDisposed) {
-            compositeDisposable.dispose()
-        }
+    open fun getData() {
+        return
     }
 
-     open fun getData(){
-         return
-     }
+//    override fun onCleared() {
+//        super.onCleared()
+//        if (!compositeDisposable.isDisposed) {
+//            compositeDisposable.dispose()
+//        }
+//        Timber.i("viewModel destroyed")
+//    }
 }
 

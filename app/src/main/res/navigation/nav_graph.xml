@@ -7,12 +7,14 @@
     <fragment
         android:id="@+id/onBoard"
         android:label="onBoard"
-        android:name="com.example.moviedb.ui.screens.OnBoardFragment"
+        android:name="com.example.moviedb.ui.screens.onboarding.OnBoardFragment"
         tools:layout="@layout/fragment_on_board">
         <action
             android:id="@+id/action_onBoard_to_home"
             app:destination="@id/homeScreen"
-            app:launchSingleTop="false" />
+            app:launchSingleTop="false"
+            app:popUpTo="@id/onBoard"
+            app:popUpToInclusive="true" />
     </fragment>
     <fragment
         android:id="@+id/homeScreen"

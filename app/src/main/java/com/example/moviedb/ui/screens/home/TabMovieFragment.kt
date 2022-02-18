@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.moviedb.data.model.MovieModel
 import com.example.moviedb.databinding.FragmentMovieListBinding
 import com.example.moviedb.ui.adapters.MoviesAdapter
+import com.example.moviedb.ui.screens.home.tabs.MovieViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
@@ -20,9 +21,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class TabMovieFragment : Fragment() {
 
-    private var moviesAdapter = MoviesAdapter()
     private lateinit var binding: FragmentMovieListBinding
-
+    private var moviesAdapter = MoviesAdapter()
     private lateinit var movieViewModel: MovieViewModel
 
     @Inject
@@ -31,20 +31,23 @@ class TabMovieFragment : Fragment() {
     private var tabPosition = 0
     private val POSITION_KEY = "Current position"
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        tabPosition = requireArguments().getInt(POSITION_KEY)
+        movieViewModel = factory.getMovieViewModel(this, tabPosition)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentMovieListBinding.inflate(inflater, container, false)
-        tabPosition = requireArguments().getInt(POSITION_KEY)
-        movieViewModel = factory.getMovieViewModel(tabPosition)
-
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
 
         setUpAdapter()
         setUpRecyclerView()
@@ -118,5 +121,10 @@ class TabMovieFragment : Fragment() {
                 Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
             })
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Timber.i("fragment destroyed")
     }
 }

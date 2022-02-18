@@ -3,6 +3,7 @@ package com.example.moviedb.ui.screens.movies.details
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.moviedb.data.api.responses.MovieDetails
 import com.example.moviedb.data.api.responses.convertToMovieDetails
 import com.example.moviedb.data.model.MovieModel
@@ -10,9 +11,9 @@ import com.example.moviedb.data.repository.MoviesRepository
 import com.example.moviedb.utils.ErrorEntity
 import com.example.moviedb.utils.defineErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.ArrayList
 import javax.inject.Inject
@@ -49,12 +50,10 @@ class MovieDetailsViewModel @Inject constructor(var repo: MoviesRepository) : Vi
     private val compositeDisposable = CompositeDisposable()
 
     fun getMovieDetails(movieId: Int) {
-        _isLoading.value = true
-        compositeDisposable.add(
+        viewModelScope.launch {
+            _isLoading.value = true
             repo.getMovieDetails(movieId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { response ->
+                .collect { response ->
                     if (response.isSuccess()) {
                         _movieDetails.value = response.data?.convertToMovieDetails()
 
@@ -65,20 +64,17 @@ class MovieDetailsViewModel @Inject constructor(var repo: MoviesRepository) : Vi
                         _movieDetailsError.value = response.error.toString()
                     }
                 }
-        )
-
+        }
         _isLoading.value = false
     }
 
 
     fun getSimilarMovies(movieId: Int) {
         if (!_isLoading.value!! && canLoadMore()) {
-            _isLoading.value = true
-            compositeDisposable.add(
+            viewModelScope.launch {
+                _isLoading.value = true
                 repo.getSimilarMovies(movieId, currentPage)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe { response ->
+                    .collect { response ->
                         if (response.isSuccess()) {
                             if (response.data?.movies?.isEmpty() == true) {
                                 _noSimilarMovies.value = "No similar movies"
@@ -86,7 +82,6 @@ class MovieDetailsViewModel @Inject constructor(var repo: MoviesRepository) : Vi
                                 response.data?.movies?.let { allLoadedMovies.addAll(it) }
                                 _movieList.value = allLoadedMovies
                                 totalPages = response.data?.total_pages ?: 1
-
                                 currentPage++
                             }
                             _isLoading.value = false
@@ -97,7 +92,7 @@ class MovieDetailsViewModel @Inject constructor(var repo: MoviesRepository) : Vi
                                 defineErrorType(response.error ?: ErrorEntity.Unknown)
                         }
                     }
-            )
+            }
         }
     }
 

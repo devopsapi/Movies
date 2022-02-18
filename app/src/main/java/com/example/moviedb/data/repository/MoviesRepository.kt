@@ -5,53 +5,78 @@ import com.example.moviedb.data.api.responses.MovieDetailsDTO
 import com.example.moviedb.data.api.responses.MoviesResponse
 import com.example.moviedb.data.model.MovieModel
 import com.example.moviedb.utils.GeneralErrorHandlerImpl
-import com.example.moviedb.utils.toResult
-import io.reactivex.rxjava3.core.Single
 import javax.inject.Inject
 import javax.inject.Singleton
 import com.example.moviedb.utils.Result
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 @Singleton
 class MoviesRepository @Inject constructor(var movieApi: MovieApi) {
 
-    fun getPopularMovies(page: Int): Single<Result<MoviesResponse>> {
-        return movieApi.getPopularMovies(page)
-            .toResult(GeneralErrorHandlerImpl())
+    fun getPopularMovies(page: Int): Flow<Result<MoviesResponse>> = flow {
+        try {
+            emit(Result.fromData(movieApi.getPopularMovies(page)))
+        } catch (e: Throwable) {
+            emit(Result.fromError<MoviesResponse>(GeneralErrorHandlerImpl().getError(e)))
+        }
     }
 
-    fun getSimilarMovies(movieId: Int, page: Int): Single<Result<MoviesResponse>> {
-        return movieApi.getSimilarMovies(movieId, page)
-            .toResult(GeneralErrorHandlerImpl())
+    fun getSimilarMovies(movieId: Int, page: Int): Flow<Result<out MoviesResponse>> = flow {
+        try {
+            emit(Result.fromData(movieApi.getSimilarMovies(movieId, page)))
+        } catch (e: Throwable) {
+            emit(Result.fromError<MoviesResponse>(GeneralErrorHandlerImpl().getError(e)))
+        }
     }
 
-    fun getMovieDetails(movieId: Int): Single<Result<MovieDetailsDTO>> {
-        return movieApi.getMovieDetails(movieId)
-            .toResult(GeneralErrorHandlerImpl())
+    fun getMovieDetails(movieId: Int): Flow<Result<MovieDetailsDTO>> = flow {
+        try {
+            val res = movieApi.getMovieDetails(movieId)
+            emit(Result.fromData(res))
+        } catch (e: Throwable) {
+            emit(Result.fromError<MovieDetailsDTO>(GeneralErrorHandlerImpl().getError(e)))
+        }
     }
 
-    fun getLatestMovie(): Single<Result<MovieModel>> {
-        return movieApi.getLatestMovies()
-            .toResult(GeneralErrorHandlerImpl())
+    fun getLatestMovie(): Flow<Result<MovieModel>> = flow {
+        try {
+            emit(Result.fromData(movieApi.getLatestMovies()))
+        } catch (e: Throwable) {
+            emit(Result.fromError<MovieModel>(GeneralErrorHandlerImpl().getError(e)))
+        }
     }
 
 
-    fun getNowPlayingMovies(page: Int): Single<Result<MoviesResponse>> {
-        return movieApi.getNowPlayingMovies(page)
-            .toResult(GeneralErrorHandlerImpl())
+    fun getNowPlayingMovies(page: Int): Flow<Result<MoviesResponse>> = flow {
+        try {
+            emit(Result.fromData(movieApi.getNowPlayingMovies(page)))
+        } catch (e: Throwable) {
+            emit(Result.fromError<MoviesResponse>(GeneralErrorHandlerImpl().getError(e)))
+        }
     }
 
-    fun getTopRatedMovies(page: Int): Single<Result<MoviesResponse>> {
-        return movieApi.getTopRatedMovies(page)
-            .toResult(GeneralErrorHandlerImpl())
+    fun getTopRatedMovies(page: Int): Flow<Result<MoviesResponse>> = flow {
+        try {
+            emit(Result.fromData(movieApi.getTopRatedMovies(page)))
+        } catch (e: Throwable) {
+            emit(Result.fromError<MoviesResponse>(GeneralErrorHandlerImpl().getError(e)))
+        }
     }
 
-    fun getUpcomingMovies(page: Int): Single<Result<MoviesResponse>> {
-        return movieApi.getUpcomingMovies(page)
-            .toResult(GeneralErrorHandlerImpl())
+    fun getUpcomingMovies(page: Int): Flow<Result<MoviesResponse>> = flow {
+        try {
+            emit(Result.fromData(movieApi.getUpcomingMovies(page)))
+        } catch (e: Throwable) {
+            emit(Result.fromError<MoviesResponse>(GeneralErrorHandlerImpl().getError(e)))
+        }
     }
 
-    fun searchForMovie(query: String, page: Int): Single<Result<MoviesResponse>> {
-        return movieApi.searchForMovie(query, page)
-            .toResult(GeneralErrorHandlerImpl())
+    fun searchForMovie(query: String, page: Int): Flow<Result<MoviesResponse>> = flow {
+        try {
+            emit(Result.fromData(movieApi.searchForMovie(query, page)))
+        } catch (e: Throwable) {
+            emit(Result.fromError<MoviesResponse>(GeneralErrorHandlerImpl().getError(e)))
+        }
     }
 }

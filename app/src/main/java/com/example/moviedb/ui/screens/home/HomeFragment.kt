@@ -25,7 +25,6 @@ class HomeFragment : Fragment() {
     private val POSITION_KEY = "Current position"
     private val QUERY_KEY = "Query"
 
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,

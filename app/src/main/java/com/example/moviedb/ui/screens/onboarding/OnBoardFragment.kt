@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens
+package com.example.moviedb.ui.screens.onboarding
 
 import android.content.Context
 import android.os.Bundle
@@ -25,14 +25,26 @@ class OnBoardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        if (checkIfOnBoardFinished()) {
+            findNavController().navigate(OnBoardFragmentDirections.actionOnBoardToHome())
+        }
+
         binding.getStartedBtn?.setOnClickListener {
             this.findNavController()
                 .navigate(OnBoardFragmentDirections.actionOnBoardToHome())
+            onBoardingFinished()
         }
+    }
 
+    private fun checkIfOnBoardFinished(): Boolean {
+        val sharedPref = requireActivity().getPreferences(Context.MODE_PRIVATE) ?: return false
+        return sharedPref.getBoolean(PREFERENCES_KEY, false)
+    }
+
+    private fun onBoardingFinished() {
         val sharedPreferences = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
         with(sharedPreferences.edit()) {
-            putBoolean(PREFERENCES_KEY, false)
+            putBoolean(PREFERENCES_KEY, true)
             apply()
         }
     }

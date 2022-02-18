@@ -1,6 +1,5 @@
 package com.example.moviedb.utils
 
-import io.reactivex.rxjava3.core.Single
 import retrofit2.HttpException
 import java.io.IOException
 import java.net.HttpURLConnection
@@ -49,15 +48,6 @@ open class Result<T>(val data: T? = null, val error: ErrorEntity? = null) {
         return data != null
     }
 }
-
-fun <T> Single<T>.toResult(errorHandler: ErrorHandler): Single<Result<T>> = this
-    .map {
-        Result.fromData(it)
-    }
-    .onErrorReturn {
-        Result.fromError(errorHandler.getError(it))
-    }
-
 
 fun defineErrorType(error: ErrorEntity): String {
     return  when (error) {
