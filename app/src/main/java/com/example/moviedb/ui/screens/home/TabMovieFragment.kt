@@ -13,14 +13,13 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.moviedb.data.model.MovieModel
 import com.example.moviedb.databinding.FragmentMovieListBinding
 import com.example.moviedb.ui.adapters.MoviesAdapter
-import com.example.moviedb.ui.screens.home.tabs.MovieViewModel
+import com.example.moviedb.ui.screens.home.tabs.*
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class TabMovieFragment : Fragment() {
-
     private lateinit var binding: FragmentMovieListBinding
     private var moviesAdapter = MoviesAdapter()
     private lateinit var movieViewModel: MovieViewModel
@@ -29,13 +28,13 @@ class TabMovieFragment : Fragment() {
     lateinit var factory: MovieViewModelsFactory
 
     private var tabPosition = 0
-    private val POSITION_KEY = "Current position"
+    private val positionKey = "Current position"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        tabPosition = requireArguments().getInt(POSITION_KEY)
-        movieViewModel = factory.getMovieViewModel(this, tabPosition)
+        tabPosition = requireArguments().getInt(positionKey)
+        movieViewModel = factory.getMovieViewModel(requireActivity(), tabPosition)
     }
 
     override fun onCreateView(
@@ -121,10 +120,5 @@ class TabMovieFragment : Fragment() {
                 Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
             })
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        Timber.i("fragment destroyed")
     }
 }

@@ -14,7 +14,7 @@ import javax.inject.Inject
 class NowPlayingMoviesViewModel @Inject constructor(var repo: MoviesRepository) : MovieViewModel() {
 
     init {
-        Timber.i("now playing view model created")
+        Timber.i("now playing viewModel created")
         getData()
     }
 

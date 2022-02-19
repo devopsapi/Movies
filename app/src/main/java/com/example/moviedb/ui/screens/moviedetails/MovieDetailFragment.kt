@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.movies.details
+package com.example.moviedb.ui.screens.moviedetails
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -25,6 +25,7 @@ class MovieDetailFragment : Fragment() {
 
     private lateinit var binding: FragmentMovieDetailBinding
     private var moviesAdapter = MoviesAdapter()
+
     private val movieDetailsViewModel: MovieDetailsViewModel by viewModels()
     private val safeArgs: MovieDetailFragmentArgs by navArgs()
 
@@ -159,7 +160,8 @@ class MovieDetailFragment : Fragment() {
             object : MoviesAdapter.OnMovieItemClickListener {
                 override fun onItemClick(item: MovieModel) {
                     this@MovieDetailFragment.findNavController()
-                        .navigate(MovieDetailFragmentDirections.actionMovieDetailFragmentSelf(item.id))
+                        .navigate(MovieDetailFragmentDirections.actionMovieDetailFragmentSelf(
+                            item.id))
                 }
             }
     }

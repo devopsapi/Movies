@@ -14,7 +14,7 @@ import javax.inject.Inject
 class UpcomingMoviesViewModel @Inject constructor(var repo: MoviesRepository) : MovieViewModel() {
 
     init {
-        Timber.i("upcoming view model created")
+        Timber.i("upcoming viewModel created")
         getData()
     }
 
@@ -31,7 +31,7 @@ class UpcomingMoviesViewModel @Inject constructor(var repo: MoviesRepository) : 
                             _isLoading.postValue(false)
                             currentPage++
 
-                            Timber.i("Network request in top rated")
+                            Timber.i("Network request in upcoming")
                         } else {
                             _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
                         }

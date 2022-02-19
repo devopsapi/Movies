@@ -24,14 +24,14 @@ class SearchFragment : Fragment() {
     private val searchViewModel: SearchViewModel by viewModels()
     private var moviesAdapter = MoviesAdapter()
     private var query = ""
-    private val KEY = "Query"
+    private val key = "Query"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentMovieListBinding.inflate(inflater, container, false)
-        query = requireArguments().getString(KEY) ?: ""
+        query = requireArguments().getString(key) ?: ""
         searchViewModel.searchForMovie(query)
         return binding.root
     }

@@ -16,7 +16,7 @@ class PopularMoviesListViewModel @Inject constructor(var repo: MoviesRepository)
     MovieViewModel() {
 
     init {
-        Timber.i("popular view model created")
+        Timber.i("popular viewModel created")
         getData()
     }
 
@@ -40,14 +40,6 @@ class PopularMoviesListViewModel @Inject constructor(var repo: MoviesRepository)
                     }
             }
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        if (!compositeDisposable.isDisposed) {
-            compositeDisposable.dispose()
-        }
-        Timber.i("viewModel destroyed")
     }
 }
 

@@ -1,4 +1,4 @@
-package com.example.moviedb.ui.screens.movies.details
+package com.example.moviedb.ui.screens.moviedetails
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,7 +11,6 @@ import com.example.moviedb.data.repository.MoviesRepository
 import com.example.moviedb.utils.ErrorEntity
 import com.example.moviedb.utils.defineErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -45,9 +44,6 @@ class MovieDetailsViewModel @Inject constructor(var repo: MoviesRepository) : Vi
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean>
         get() = _isLoading
-
-
-    private val compositeDisposable = CompositeDisposable()
 
     fun getMovieDetails(movieId: Int) {
         viewModelScope.launch {
@@ -102,13 +98,5 @@ class MovieDetailsViewModel @Inject constructor(var repo: MoviesRepository) : Vi
         }
 
         return currentPage < totalPages
-    }
-
-
-    override fun onCleared() {
-        super.onCleared()
-        if (!compositeDisposable.isDisposed) {
-            compositeDisposable.dispose()
-        }
     }
 }

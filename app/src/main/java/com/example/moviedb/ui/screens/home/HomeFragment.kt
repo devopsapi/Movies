@@ -21,9 +21,9 @@ class HomeFragment : Fragment() {
     private lateinit var fragmentTransaction: FragmentTransaction
     private lateinit var fragment: Fragment
 
-    private var CURRENT_TAB_POSITION = 0
-    private val POSITION_KEY = "Current position"
-    private val QUERY_KEY = "Query"
+    private var currentTabPosition = 0
+    private val positionKey = "Current position"
+    private val queryKey = "Query"
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -37,13 +37,13 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         if (savedInstanceState != null) {
-            CURRENT_TAB_POSITION = savedInstanceState.getInt(POSITION_KEY)
+            currentTabPosition = savedInstanceState.getInt(positionKey)
         }
 
-        binding.tabsLayout.selectTab(binding.tabsLayout.getTabAt(CURRENT_TAB_POSITION))
+        binding.tabsLayout.selectTab(binding.tabsLayout.getTabAt(currentTabPosition))
 
         val bundle = Bundle()
-        bundle.putInt(POSITION_KEY, CURRENT_TAB_POSITION)
+        bundle.putInt(positionKey, currentTabPosition)
 
         fragment = TabMovieFragment()
         fragment.arguments = bundle
@@ -57,9 +57,9 @@ class HomeFragment : Fragment() {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 // Handle tab select
 
-                CURRENT_TAB_POSITION = tab?.position ?: 0
+                currentTabPosition = tab?.position ?: 0
 
-                bundle.putInt(POSITION_KEY, CURRENT_TAB_POSITION)
+                bundle.putInt(positionKey, currentTabPosition)
 
                 fragment = TabMovieFragment()
                 fragment.arguments = bundle
@@ -83,7 +83,6 @@ class HomeFragment : Fragment() {
         setUpSearch()
     }
 
-
     private fun setUpSearch() {
         binding.searchView.apply {
             setOnQueryTextListener(object : SearchView.OnQueryTextListener {
@@ -96,7 +95,7 @@ class HomeFragment : Fragment() {
                         binding.tabsLayout.tabSelectedIndicator.alpha = 0
 
                         val bundle = Bundle()
-                        bundle.putString(QUERY_KEY, query)
+                        bundle.putString(queryKey, query)
 
                         fragment = SearchFragment()
                         fragment.arguments = bundle
@@ -120,6 +119,6 @@ class HomeFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt(POSITION_KEY, CURRENT_TAB_POSITION)
+        outState.putInt(positionKey, currentTabPosition)
     }
 }

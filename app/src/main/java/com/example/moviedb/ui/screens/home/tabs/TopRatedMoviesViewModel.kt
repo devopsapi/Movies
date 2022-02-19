@@ -14,7 +14,7 @@ import javax.inject.Inject
 class TopRatedMoviesViewModel @Inject constructor(var repo: MoviesRepository) : MovieViewModel() {
 
     init {
-        Timber.i("top rated view model created")
+        Timber.i("top rated viewModel created")
         getData()
     }
 

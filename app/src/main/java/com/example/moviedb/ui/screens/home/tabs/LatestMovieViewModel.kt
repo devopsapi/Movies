@@ -15,7 +15,7 @@ import javax.inject.Inject
 class LatestMovieViewModel @Inject constructor(var repo: MoviesRepository) : MovieViewModel() {
 
     init {
-        Timber.i("latest view model created")
+        Timber.i("latest viewModel created")
         getData()
     }
 
@@ -37,13 +37,5 @@ class LatestMovieViewModel @Inject constructor(var repo: MoviesRepository) : Mov
                     }
             }
         }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        if (!compositeDisposable.isDisposed) {
-            compositeDisposable.dispose()
-        }
-        Timber.i("viewModel destroyed")
     }
 }
