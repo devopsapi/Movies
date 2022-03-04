@@ -26,7 +26,7 @@
                 <aapt:attr name="android:fillColor">
 
                     <gradient
-                        android:endX="281.25"
+                        android:endX="215"
                         android:endY="261"
                         android:startX="93.75"
                         android:startY="261"
@@ -37,7 +37,7 @@
                             android:offset="0" />
 
                         <item
-                            android:color="#00000000"
+                            android:color="#2E2F3F"
                             android:offset="1" />
 
                     </gradient>
