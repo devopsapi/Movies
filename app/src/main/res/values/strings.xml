@@ -12,5 +12,7 @@
     <string name="upcoming">Upcoming</string>
     <string name="back">Back</string>
     <string name="genre_s">Genre(s)</string>
+    <string name="no_movies">No movies found</string>
+    <string name="movie_poster">Movie poster</string>
 
 </resources>

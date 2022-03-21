@@ -1,6 +1,5 @@
 package com.example.moviedb.ui.screens.moviedetails
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
@@ -14,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.moviedb.R
 import com.example.moviedb.data.api.responses.MovieDetails
-import com.example.moviedb.data.model.MovieModel
+import com.example.moviedb.data.model.Movie
 import com.example.moviedb.databinding.FragmentMovieDetailBinding
 import com.example.moviedb.ui.adapters.MoviesAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -34,6 +33,7 @@ class MovieDetailFragment : Fragment() {
 
         movieDetailsViewModel.getMovieDetails(safeArgs.movieId)
         movieDetailsViewModel.getSimilarMovies(safeArgs.movieId)
+        movieDetailsViewModel.checkIfFavourite(safeArgs.movieId)
     }
 
     override fun onCreateView(
@@ -54,11 +54,25 @@ class MovieDetailFragment : Fragment() {
         binding.backBtn.setOnClickListener {
             findNavController().navigateUp()
         }
+
+        binding.favourite.setOnClickListener {
+            val movie = Movie(safeArgs.movieId, safeArgs.poster)
+            movieDetailsViewModel.addToFavourites(movie)
+        }
     }
 
     private fun observeData() {
         movieDetailsViewModel.apply {
-            isLoading.observe(viewLifecycleOwner, {
+            isLoadingDetails.observe(viewLifecycleOwner, {
+                if (it) {
+                    binding.progressBar.visibility =
+                        View.VISIBLE
+                } else {
+                    binding.progressBar.visibility = View.GONE
+                }
+            })
+
+            isLoadingSimilarMovies.observe(viewLifecycleOwner, {
                 if (it) {
                     binding.progressBar.visibility =
                         View.VISIBLE
@@ -71,7 +85,7 @@ class MovieDetailFragment : Fragment() {
                 updateMovieDetails(it)
             })
 
-            movieDetailsError.observe(viewLifecycleOwner, { errorMessage ->
+            responseMessage.observe(viewLifecycleOwner, { errorMessage ->
                 binding.root.visibility = View.GONE
                 Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
             })
@@ -86,11 +100,17 @@ class MovieDetailFragment : Fragment() {
                 moviesAdapter.setData(it)
             })
 
+            isFavourite.observe(viewLifecycleOwner) {
+                if (it) {
+                    binding.heartImg.setImageResource(R.drawable.red_heart)
+                } else {
+                    binding.heartImg.setImageResource(R.drawable.white_heart)
+                }
+            }
         }
     }
 
 
-    @SuppressLint("SetTextI18n")
     private fun updateMovieDetails(movieDetails: MovieDetails) {
         with(movieDetails) {
             binding.apply {
@@ -125,12 +145,9 @@ class MovieDetailFragment : Fragment() {
 
     private fun setupRecyclerView() {
         binding.rvMovies.apply {
-
             val layout = LinearLayoutManager(context)
             layout.orientation = LinearLayoutManager.HORIZONTAL
-
             layoutManager = layout
-
             adapter = moviesAdapter
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -158,10 +175,10 @@ class MovieDetailFragment : Fragment() {
     private fun setUpAdapter() {
         moviesAdapter.onMovieItemClickListener =
             object : MoviesAdapter.OnMovieItemClickListener {
-                override fun onItemClick(item: MovieModel) {
+                override fun onItemClick(item: Movie) {
                     this@MovieDetailFragment.findNavController()
                         .navigate(MovieDetailFragmentDirections.actionMovieDetailFragmentSelf(
-                            item.id))
+                            item.id, item.poster_path ?: ""))
                 }
             }
     }

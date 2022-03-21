@@ -10,7 +10,7 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.moviedb.data.model.MovieModel
+import com.example.moviedb.data.model.Movie
 import com.example.moviedb.databinding.FragmentMovieListBinding
 import com.example.moviedb.ui.adapters.MoviesAdapter
 import com.example.moviedb.ui.screens.home.HomeFragmentDirections
@@ -47,12 +47,11 @@ class SearchFragment : Fragment() {
     private fun setUpAdapter() {
         moviesAdapter.onMovieItemClickListener =
             object : MoviesAdapter.OnMovieItemClickListener {
-                override fun onItemClick(item: MovieModel) {
+                override fun onItemClick(item: Movie) {
                     this@SearchFragment.findNavController()
                         .navigate(
                             HomeFragmentDirections.actionHomeToMovieDetailFragment(
-                                item.id
-                            )
+                                item.id, item.poster_path ?: "")
                         )
                 }
             }

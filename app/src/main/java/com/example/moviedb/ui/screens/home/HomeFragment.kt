@@ -42,6 +42,7 @@ class HomeFragment : Fragment() {
             2 -> "Now playing"
             3 -> "Top rated"
             4 -> "Upcoming"
+            5 -> "Favourites"
             else -> "Popular"
         }
     }

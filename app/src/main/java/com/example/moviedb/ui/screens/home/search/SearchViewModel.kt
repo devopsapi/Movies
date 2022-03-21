@@ -1,7 +1,7 @@
 package com.example.moviedb.ui.screens.home.search
 
 import androidx.lifecycle.viewModelScope
-import com.example.moviedb.data.repository.MoviesRepository
+import com.example.moviedb.data.repository.NetworkRepository
 import com.example.moviedb.ui.screens.home.tabs.MovieViewModel
 import com.example.moviedb.utils.ErrorEntity
 import com.example.moviedb.utils.defineErrorType
@@ -12,7 +12,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class SearchViewModel @Inject constructor(val repo: MoviesRepository) : MovieViewModel() {
+class SearchViewModel @Inject constructor(val repo: NetworkRepository) : MovieViewModel() {
 
     fun searchForMovie(query: String) {
         if (!_isLoading.value!! && canLoadMore())
@@ -28,7 +28,7 @@ class SearchViewModel @Inject constructor(val repo: MoviesRepository) : MovieVie
                             _isLoading.postValue(false)
                             Timber.i("Network request in search ")
                         } else {
-                            _error.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
+                            _responseMessage.value = defineErrorType(response.error ?: ErrorEntity.Unknown)
                         }
                     }
             }

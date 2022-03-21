@@ -8,8 +8,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/background_3">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/moviePoster"
@@ -72,13 +71,14 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
+            android:id="@+id/heart_img"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="@+id/favourite"
             app:layout_constraintEnd_toEndOf="@+id/favourite"
             app:layout_constraintStart_toStartOf="@+id/favourite"
             app:layout_constraintTop_toTopOf="@+id/favourite"
-            app:srcCompat="@drawable/favorite" />
+            app:srcCompat="@drawable/white_heart" />
 
         <TextView
             android:id="@+id/movieTitle"
@@ -172,45 +172,39 @@
 
         </HorizontalScrollView>
 
-
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <TextView
+            android:id="@+id/similarMovies"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
             android:layout_marginTop="25dp"
-            app:layout_constraintTop_toBottomOf="@id/genresScroll">
-
-            <TextView
-                android:id="@+id/similarMovies"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="40dp"
-                android:text="@string/similar_movies"
-                android:textAppearance="@style/genre_s"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+            android:text="@string/similar_movies"
+            android:textAppearance="@style/genre_s"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/genresScroll" />
 
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvMovies"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:scrollbars="horizontal"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/similarMovies"
-                app:flow_horizontalAlign="start"
-                tools:listitem="@layout/movie_item" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvMovies"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/background_3"
+            android:scrollbars="horizontal"
+            app:flow_horizontalAlign="start"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/similarMovies"
+            tools:listitem="@layout/movie_item" />
 
-            <ProgressBar
-                android:id="@+id/progress_bar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="60dp"
-                android:layout_marginTop="50dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@id/rvMovies" />
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

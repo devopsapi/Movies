@@ -2,7 +2,7 @@ package com.example.moviedb.data.api
 
 import com.example.moviedb.data.api.responses.MovieDetailsDTO
 import com.example.moviedb.data.api.responses.MoviesResponse
-import com.example.moviedb.data.model.MovieModel
+import com.example.moviedb.data.model.Movie
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -25,7 +25,7 @@ interface MovieApi {
     ): MoviesResponse
 
     @GET("movie/latest")
-    suspend fun getLatestMovies(): MovieModel
+    suspend fun getLatestMovies(): Movie
 
     @GET("movie/now_playing")
     suspend fun getNowPlayingMovies(

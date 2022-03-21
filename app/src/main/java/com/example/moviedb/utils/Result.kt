@@ -49,11 +49,12 @@ open class Result<T>(val data: T? = null, val error: ErrorEntity? = null) {
     }
 }
 
-fun defineErrorType(error: ErrorEntity): String {
-    return  when (error) {
+fun defineErrorType(error: ErrorEntity?): String {
+    return when (error) {
         is ErrorEntity.Network -> "NO INTERNET CONNECTION"
         is ErrorEntity.NotFound -> "CONTENT NOT FOUND"
         is ErrorEntity.ServiceUnavailable -> "CURRENTLY SERVER IS UNAVAILABLE"
         is ErrorEntity.Unknown -> "UNKNOWN ERROR"
+        else -> "UNKNOWN ERROR"
     }
 }

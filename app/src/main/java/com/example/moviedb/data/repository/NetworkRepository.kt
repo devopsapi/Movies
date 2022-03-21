@@ -3,7 +3,7 @@ package com.example.moviedb.data.repository
 import com.example.moviedb.data.api.MovieApi
 import com.example.moviedb.data.api.responses.MovieDetailsDTO
 import com.example.moviedb.data.api.responses.MoviesResponse
-import com.example.moviedb.data.model.MovieModel
+import com.example.moviedb.data.model.Movie
 import com.example.moviedb.utils.GeneralErrorHandlerImpl
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 @Singleton
-class MoviesRepository @Inject constructor(var movieApi: MovieApi) {
+class NetworkRepository @Inject constructor(var movieApi: MovieApi) {
 
     fun getPopularMovies(page: Int): Flow<Result<MoviesResponse>> = flow {
         try {
@@ -39,11 +39,11 @@ class MoviesRepository @Inject constructor(var movieApi: MovieApi) {
         }
     }
 
-    fun getLatestMovie(): Flow<Result<MovieModel>> = flow {
+    fun getLatestMovie(): Flow<Result<Movie>> = flow {
         try {
             emit(Result.fromData(movieApi.getLatestMovies()))
         } catch (e: Throwable) {
-            emit(Result.fromError<MovieModel>(GeneralErrorHandlerImpl().getError(e)))
+            emit(Result.fromError<Movie>(GeneralErrorHandlerImpl().getError(e)))
         }
     }
 

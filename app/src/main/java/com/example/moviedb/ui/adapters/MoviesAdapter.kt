@@ -6,12 +6,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.moviedb.R
 import com.example.moviedb.databinding.MovieItemBinding
-import com.example.moviedb.data.model.MovieModel
+import com.example.moviedb.data.model.Movie
 import java.util.*
 
 class MoviesAdapter : RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>() {
 
-    private var movies: MutableList<MovieModel> = ArrayList()
+    private var movies: MutableList<Movie> = ArrayList()
     var onMovieItemClickListener: OnMovieItemClickListener? = null
 
     override fun onCreateViewHolder(
@@ -33,7 +33,7 @@ class MoviesAdapter : RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>() {
         return movies.size
     }
 
-    fun setData(items: List<MovieModel>?) {
+    fun setData(items: List<Movie>?) {
         movies.clear()
         val oldSize = items?.size
         items?.let {
@@ -46,8 +46,8 @@ class MoviesAdapter : RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>() {
 
 
     inner class MovieViewHolder(private val binding: MovieItemBinding) :
-        BaseViewHolder<MovieModel>(binding.root) {
-        override fun onBind(item: MovieModel) {
+        BaseViewHolder<Movie>(binding.root) {
+        override fun onBind(item: Movie) {
             binding.apply {
 
                 Glide.with(root)
@@ -63,7 +63,7 @@ class MoviesAdapter : RecyclerView.Adapter<MoviesAdapter.MovieViewHolder>() {
     }
 
     interface OnMovieItemClickListener {
-        fun onItemClick(item: MovieModel)
+        fun onItemClick(item: Movie)
     }
 
     companion object {

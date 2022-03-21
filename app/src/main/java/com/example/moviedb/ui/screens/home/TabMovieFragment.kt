@@ -10,7 +10,8 @@ import android.widget.Toast
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.moviedb.data.model.MovieModel
+import com.example.moviedb.R
+import com.example.moviedb.data.model.Movie
 import com.example.moviedb.databinding.FragmentMovieListBinding
 import com.example.moviedb.ui.adapters.MoviesAdapter
 import com.example.moviedb.ui.screens.home.tabs.*
@@ -20,12 +21,12 @@ import javax.inject.Inject
 
 @AndroidEntryPoint
 class TabMovieFragment : Fragment() {
+    @Inject
+    lateinit var factory: MovieViewModelsFactory
+
     private lateinit var binding: FragmentMovieListBinding
     private var moviesAdapter = MoviesAdapter()
     private lateinit var movieViewModel: MovieViewModel
-
-    @Inject
-    lateinit var factory: MovieViewModelsFactory
 
     private var tabPosition = 0
     private val positionKey = "Current position"
@@ -35,6 +36,7 @@ class TabMovieFragment : Fragment() {
 
         tabPosition = requireArguments().getInt(positionKey)
         movieViewModel = factory.getMovieViewModel(requireActivity(), tabPosition)
+        Timber.i("Tab ViewModel: $movieViewModel")
     }
 
     override fun onCreateView(
@@ -56,11 +58,11 @@ class TabMovieFragment : Fragment() {
     private fun setUpAdapter() {
         moviesAdapter.onMovieItemClickListener =
             object : MoviesAdapter.OnMovieItemClickListener {
-                override fun onItemClick(item: MovieModel) {
+                override fun onItemClick(item: Movie) {
                     this@TabMovieFragment.findNavController()
                         .navigate(
                             HomeFragmentDirections.actionHomeToMovieDetailFragment(
-                                item.id
+                                item.id, item.poster_path ?: ""
                             )
                         )
                 }
@@ -113,10 +115,16 @@ class TabMovieFragment : Fragment() {
             })
 
             movieList.observe(viewLifecycleOwner, {
+                if (it.isEmpty()) {
+                    binding.noMovies.visibility = View.VISIBLE
+                    binding.noMovies.text = getString(R.string.no_movies)
+                } else {
+                    binding.noMovies.visibility = View.INVISIBLE
+                }
                 moviesAdapter.setData(it)
             })
 
-            error.observe(viewLifecycleOwner, { errorMessage ->
+            responseMessage.observe(viewLifecycleOwner, { errorMessage ->
                 Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
             })
         }

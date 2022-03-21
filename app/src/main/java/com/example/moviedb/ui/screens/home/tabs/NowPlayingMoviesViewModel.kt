@@ -1,8 +1,7 @@
 package com.example.moviedb.ui.screens.home.tabs
 
 import androidx.lifecycle.viewModelScope
-import com.example.moviedb.data.repository.MoviesRepository
-import com.example.moviedb.utils.ErrorEntity
+import com.example.moviedb.data.repository.NetworkRepository
 import com.example.moviedb.utils.defineErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
@@ -11,7 +10,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
-class NowPlayingMoviesViewModel @Inject constructor(var repo: MoviesRepository) : MovieViewModel() {
+class NowPlayingMoviesViewModel @Inject constructor(var repo: NetworkRepository) : MovieViewModel() {
 
     init {
         Timber.i("now playing viewModel created")
@@ -33,12 +32,11 @@ class NowPlayingMoviesViewModel @Inject constructor(var repo: MoviesRepository) 
 
                             Timber.i("Network request in now playing")
                         } else {
-                            _error.value =
-                                defineErrorType(response.error ?: ErrorEntity.Unknown)
+                            _responseMessage.value =
+                                defineErrorType(response.error)
                         }
                     }
             }
-
         }
     }
 }
