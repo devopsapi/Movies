@@ -2,7 +2,6 @@ package com.example.moviedb.data.api
 
 import com.example.moviedb.data.api.responses.MovieDetailsDTO
 import com.example.moviedb.data.api.responses.MoviesResponse
-import com.example.moviedb.data.model.Movie
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -24,9 +23,6 @@ interface MovieApi {
         @Query("page") page: Int = 1,
     ): MoviesResponse
 
-    @GET("movie/latest")
-    suspend fun getLatestMovies(): Movie
-
     @GET("movie/now_playing")
     suspend fun getNowPlayingMovies(
         @Query("page") page: Int = 1,
@@ -40,11 +36,5 @@ interface MovieApi {
     @GET("movie/upcoming")
     suspend fun getUpcomingMovies(
         @Query("page") page: Int = 1,
-    ): MoviesResponse
-
-    @GET("search/movie")
-    suspend fun searchForMovie(
-        @Query("query") query: String,
-        @Query("page") page: Int,
     ): MoviesResponse
 }

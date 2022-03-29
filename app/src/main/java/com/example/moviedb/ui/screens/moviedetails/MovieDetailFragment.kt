@@ -6,24 +6,27 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import android.widget.Toast
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.moviedb.R
 import com.example.moviedb.data.api.responses.MovieDetails
 import com.example.moviedb.data.model.Movie
 import com.example.moviedb.databinding.FragmentMovieDetailBinding
+import com.example.moviedb.ui.adapters.DefaultLoadStateAdapter
 import com.example.moviedb.ui.adapters.MoviesAdapter
 import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MovieDetailFragment : Fragment() {
 
     private lateinit var binding: FragmentMovieDetailBinding
     private var moviesAdapter = MoviesAdapter()
+    private lateinit var mainLoadStateHolder: DefaultLoadStateAdapter.ViewHolder
 
     private val movieDetailsViewModel: MovieDetailsViewModel by viewModels()
     private val safeArgs: MovieDetailFragmentArgs by navArgs()
@@ -32,7 +35,6 @@ class MovieDetailFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         movieDetailsViewModel.getMovieDetails(safeArgs.movieId)
-        movieDetailsViewModel.getSimilarMovies(safeArgs.movieId)
         movieDetailsViewModel.checkIfFavourite(safeArgs.movieId)
     }
 
@@ -41,6 +43,7 @@ class MovieDetailFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View {
         binding = FragmentMovieDetailBinding.inflate(inflater, container, false)
+        mainLoadStateHolder = DefaultLoadStateAdapter.ViewHolder(binding.loadStateView)
         return binding.root
     }
 
@@ -50,6 +53,7 @@ class MovieDetailFragment : Fragment() {
         setUpAdapter()
         setupRecyclerView()
         observeData()
+        observeLoadState()
 
         binding.backBtn.setOnClickListener {
             findNavController().navigateUp()
@@ -63,23 +67,11 @@ class MovieDetailFragment : Fragment() {
 
     private fun observeData() {
         movieDetailsViewModel.apply {
-            isLoadingDetails.observe(viewLifecycleOwner, {
-                if (it) {
-                    binding.progressBar.visibility =
-                        View.VISIBLE
-                } else {
-                    binding.progressBar.visibility = View.GONE
+            viewLifecycleOwner.lifecycleScope.launch {
+                getSimilarMovies(safeArgs.movieId).collectLatest { movies ->
+                    moviesAdapter.submitData(movies)
                 }
-            })
-
-            isLoadingSimilarMovies.observe(viewLifecycleOwner, {
-                if (it) {
-                    binding.progressBar.visibility =
-                        View.VISIBLE
-                } else {
-                    binding.progressBar.visibility = View.GONE
-                }
-            })
+            }
 
             movieDetails.observe(viewLifecycleOwner, {
                 updateMovieDetails(it)
@@ -96,10 +88,6 @@ class MovieDetailFragment : Fragment() {
                 }
             })
 
-            movieList.observe(viewLifecycleOwner, {
-                moviesAdapter.setData(it)
-            })
-
             isFavourite.observe(viewLifecycleOwner) {
                 if (it) {
                     binding.heartImg.setImageResource(R.drawable.red_heart)
@@ -110,6 +98,13 @@ class MovieDetailFragment : Fragment() {
         }
     }
 
+    private fun observeLoadState() {
+        lifecycleScope.launch {
+            moviesAdapter.loadStateFlow.collectLatest { state ->
+                mainLoadStateHolder.bind(state.refresh)
+            }
+        }
+    }
 
     private fun updateMovieDetails(movieDetails: MovieDetails) {
         with(movieDetails) {
@@ -148,27 +143,7 @@ class MovieDetailFragment : Fragment() {
             val layout = LinearLayoutManager(context)
             layout.orientation = LinearLayoutManager.HORIZONTAL
             layoutManager = layout
-            adapter = moviesAdapter
-
-            addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    super.onScrolled(recyclerView, dx, dy)
-
-                    if (dx > 0) {
-                        val totalItemCount = (layoutManager as LinearLayoutManager).itemCount
-                        val lastVisibleItemPosition =
-                            (layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
-
-                        Timber.i("--------------------------")
-                        Timber.i(" $totalItemCount")
-                        Timber.i("LAST_VISIBLE_ITEM: $lastVisibleItemPosition")
-
-                        if ((lastVisibleItemPosition + 1) >= totalItemCount) {
-                            movieDetailsViewModel.getSimilarMovies(safeArgs.movieId)
-                        }
-                    }
-                }
-            })
+            adapter = moviesAdapter.withLoadStateFooter(DefaultLoadStateAdapter())
         }
     }
 
@@ -178,7 +153,7 @@ class MovieDetailFragment : Fragment() {
                 override fun onItemClick(item: Movie) {
                     this@MovieDetailFragment.findNavController()
                         .navigate(MovieDetailFragmentDirections.actionMovieDetailFragmentSelf(
-                            item.id, item.poster_path ?: ""))
+                            item.id, item.poster_path))
                 }
             }
     }

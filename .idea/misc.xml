@@ -33,12 +33,14 @@
         <entry key="app/src/main/res/drawable/rectangle_2_2.xml" value="0.33125" />
         <entry key="app/src/main/res/drawable/rectangle_for_search.xml" value="0.39794871794871794" />
         <entry key="app/src/main/res/drawable/red_heart.xml" value="0.33125" />
+        <entry key="app/src/main/res/drawable/search_icon.xml" value="0.33125" />
         <entry key="app/src/main/res/drawable/test.xml" value="0.39794871794871794" />
         <entry key="app/src/main/res/drawable/vector.xml" value="0.39794871794871794" />
         <entry key="app/src/main/res/layout-v31/fragment_home.xml" value="0.3880208333333333" />
         <entry key="app/src/main/res/layout-v31/fragment_on_board.xml" value="0.3151041666666667" />
         <entry key="app/src/main/res/layout-v31/fragment_on_board_test.xml" value="0.3880208333333333" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.3880208333333333" />
+        <entry key="app/src/main/res/layout/default_load_state.xml" value="0.3151041666666667" />
         <entry key="app/src/main/res/layout/fragment_blank.xml" value="0.3880208333333333" />
         <entry key="app/src/main/res/layout/fragment_home.xml" value="0.382051282051282" />
         <entry key="app/src/main/res/layout/fragment_home_test.xml" value="0.382051282051282" />
@@ -56,6 +58,8 @@
         <entry key="app/src/main/res/layout/latest_movies.xml" value="0.382051282051282" />
         <entry key="app/src/main/res/layout/movie_item.xml" value="0.3880208333333333" />
         <entry key="app/src/main/res/layout/popular_movies.xml" value="0.382051282051282" />
+        <entry key="app/src/main/res/menu/home_menu.xml" value="0.3151041666666667" />
+        <entry key="app/src/main/res/menu/options_menu.xml" value="0.3151041666666667" />
       </map>
     </option>
   </component>

@@ -7,7 +7,7 @@ import com.example.moviedb.ui.screens.home.TabMovieFragment
 
 
 class TabMoviesAdapter(fragment: Fragment) : FragmentStateAdapter(fragment) {
-    private val tabsAmount = 6
+    private val tabsAmount = 5
     private val positionKey = "Current position"
 
     override fun getItemCount(): Int = tabsAmount

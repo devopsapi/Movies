@@ -1,6 +1,7 @@
 package com.example.moviedb.ui.screens.moviedetails
 
 import androidx.lifecycle.*
+import androidx.paging.PagingData
 import com.example.moviedb.data.api.responses.MovieDetails
 import com.example.moviedb.data.api.responses.convertToMovieDetails
 import com.example.moviedb.data.model.Movie
@@ -9,30 +10,21 @@ import com.example.moviedb.data.repository.NetworkRepository
 import com.example.moviedb.utils.ErrorEntity
 import com.example.moviedb.utils.defineErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.ArrayList
 import javax.inject.Inject
 
 
 @HiltViewModel
 class MovieDetailsViewModel @Inject constructor(
-    val networkRepo: NetworkRepository,
-    val databaseRepo: DatabaseRepository,
+    private val networkRepo: NetworkRepository,
+    private val databaseRepo: DatabaseRepository,
 ) : ViewModel() {
 
     private val _movieDetails = MutableLiveData<MovieDetails>()
     val movieDetails: LiveData<MovieDetails>
         get() = _movieDetails
-
-    private val _movieList = MutableLiveData<List<Movie>>()
-    val movieList: LiveData<List<Movie>>
-        get() = _movieList
-    private val allLoadedMovies = ArrayList<Movie>()
-
-    private var totalPages: Int = 1
-    private var currentPage: Int = 1
 
     private val _noSimilarMovies = MutableLiveData("")
     val noSimilarMovies: LiveData<String>
@@ -42,14 +34,6 @@ class MovieDetailsViewModel @Inject constructor(
     val responseMessage: LiveData<String>
         get() = _responseMessage
 
-    private val _isLoadingDetails = MutableLiveData(false)
-    val isLoadingDetails: LiveData<Boolean>
-        get() = _isLoadingDetails
-
-    private val _isLoadingSimilarMovies = MutableLiveData(false)
-    val isLoadingSimilarMovies: LiveData<Boolean>
-        get() = _isLoadingSimilarMovies
-
     private val _isFavourite = MutableLiveData(false)
     val isFavourite: LiveData<Boolean>
         get() = _isFavourite
@@ -57,7 +41,6 @@ class MovieDetailsViewModel @Inject constructor(
 
     fun getMovieDetails(movieId: Int) {
         viewModelScope.launch {
-            _isLoadingDetails.value = true
             networkRepo.getMovieDetails(movieId)
                 .collect { response ->
                     if (response.isSuccess()) {
@@ -68,46 +51,14 @@ class MovieDetailsViewModel @Inject constructor(
                             defineErrorType(response.error ?: ErrorEntity.Unknown)
                         _responseMessage.value = response.error.toString()
                     }
-                    _isLoadingDetails.postValue(false)
                 }
         }
     }
 
 
-    fun getSimilarMovies(movieId: Int) {
-        if (_isLoadingSimilarMovies.value!!.not() && canLoadMore()) {
-            viewModelScope.launch {
-                _isLoadingDetails.postValue(true)
-                networkRepo
-                    .getSimilarMovies(movieId, currentPage)
-                    .collect { response ->
-                        if (response.isSuccess()) {
-                            if (response.data?.movies?.isEmpty() == true) {
-                                _noSimilarMovies.value = "No similar movies"
-                            } else {
-                                response.data?.movies?.let { allLoadedMovies.addAll(it) }
-                                _movieList.value = allLoadedMovies
-                                totalPages = response.data?.total_pages ?: 1
-                                currentPage++
-                            }
-                            Timber.i("Network request in similar")
-                        } else {
-                            _responseMessage.value =
-                                defineErrorType(response.error ?: ErrorEntity.Unknown)
-                        }
-                        _isLoadingSimilarMovies.postValue(false)
-                    }
-            }
-        }
-    }
+    fun getSimilarMovies(movieId: Int): Flow<PagingData<Movie>> =
+        networkRepo.getSimilarMovies(movieId)
 
-    private fun canLoadMore(): Boolean {
-        if (currentPage == 1) {
-            return true
-        }
-
-        return currentPage < totalPages
-    }
 
     fun addToFavourites(movie: Movie) {
         viewModelScope.launch {

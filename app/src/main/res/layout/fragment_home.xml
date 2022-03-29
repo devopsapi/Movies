@@ -22,25 +22,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <SearchView
-        android:id="@+id/searchView"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginEnd="30dp"
-        android:background="@drawable/search_bar_design"
-        android:queryHint="Enter movie title"
-        app:layout_constraintTop_toBottomOf="@id/whatToWatch" />
-
-    <com.google.android.material.tabs.TabLayout
+     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabsLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="30dp"
         android:background="@color/transparent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/searchView"
+        app:layout_constraintTop_toBottomOf="@id/whatToWatch"
         app:tabContentStart="30dp"
         app:tabIndicatorColor="@color/white"
         app:tabMode="scrollable"

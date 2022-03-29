@@ -1,10 +1,8 @@
 package com.example.moviedb.ui.screens.home
 
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import com.example.moviedb.databinding.FragmentHomeBinding
 import com.example.moviedb.ui.adapters.TabMoviesAdapter
 import com.google.android.material.tabs.TabLayoutMediator
@@ -38,11 +36,10 @@ class HomeFragment : Fragment() {
     private fun defineTabName(position: Int): String {
         return when (position) {
             0 -> "Popular"
-            1 -> "Latest"
-            2 -> "Now playing"
-            3 -> "Top rated"
-            4 -> "Upcoming"
-            5 -> "Favourites"
+            1 -> "Now playing"
+            2 -> "Top rated"
+            3 -> "Upcoming"
+            4 -> "Favourites"
             else -> "Popular"
         }
     }

@@ -14,5 +14,7 @@
     <string name="genre_s">Genre(s)</string>
     <string name="no_movies">No movies found</string>
     <string name="movie_poster">Movie poster</string>
+    <string name="search">Search</string>
+    <string name="error">Error</string>
 
 </resources>
